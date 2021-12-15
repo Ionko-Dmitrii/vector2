@@ -1,0 +1,96 @@
+{% load static %}
+
+<header>
+    <!-- <div class="container"> -->
+    <a href="{% url 'home' %}" id="logo">
+        <img src="{% static 'img/logo.svg' %}" alt="">
+        <img src="{% static 'img/logoText.svg' %}" alt="">
+    </a>
+    <input type="checkbox" id="check">
+    <label id="hamburger" for="check">
+        <span></span>
+    </label>
+    <ul class="menu">
+        <li>
+            <a href="#/">Вход</a>
+        </li>
+        <li>
+            <a href="#/" class="signUpButton">Регистрация</a>
+        </li>
+        <li>
+            <a href="#/" class="menuButton">
+                Новости
+                <img src="{% static 'img/tri.svg' %}" alt="">
+            </a>
+            <nav>
+                <a href="news.html">
+                    <img src="{% static 'img/circle.svg' %}" alt="">
+                    новости
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit.</p>
+                </a>
+                <a href="analytics.html">
+                    <img src="{% static 'img/circle.svg' %}" alt="">
+                    аналитика
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit.</p>
+                </a>
+                <a href="signals.html">
+                    <img src="{% static 'img/circle.svg' %}" alt="">
+                    сигналы
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit.</p>
+                </a>
+            </nav>
+        </li>
+        <li>
+            <a href="">Поддержка</a>
+        </li>
+        <li>
+            <a href="#/" class="menuButton">
+                Финансы
+                <img src="{% static 'img/tri.svg' %}" alt="">
+            </a>
+            <nav>
+                <a href="exchange.html">
+                    <img src="{% static 'img/circle.svg' %}" alt="">
+                    обмен
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit.</p>
+                </a>
+                <a href="balances.html">
+                    <img src="{% static 'img/circle.svg' %}" alt="">
+                    балансы
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit.</p>
+                </a>
+                <a href="history.html">
+                    <img src="{% static 'img/circle.svg' %}" alt="">
+                    история
+                    <p>Lorem ipsum, dolor sit amet consectetur adipisicing
+                        elit.</p>
+                </a>
+            </nav>
+        </li>
+    </ul>
+    {% if user.is_authenticated %}
+         <div class="rightPart">
+            <a class="loginButton">
+                <img src="{% static 'img/loginIcon.svg' %}">
+                {{ user.email }}
+            </a>
+            <a href="{% url 'logout' %}" class="loginButton">
+                Выход
+            </a>
+        </div>
+    {% else %}
+        <div class="rightPart">
+            <a href="#/" class="loginButton">
+                Вход
+            </a>
+            <a href="#/" class="signUpButton">
+                Регистрация
+            </a>
+        </div>
+    {% endif %}
+</header>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Klientela</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="exchange.css">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+        <style>
+            .calc{
+                float: left;
+                width: 30%;
+                overflow: hidden;
+            }
+            /* .calc:last-of-type{
+            } */
+            .calc:first-of-type{
+                width: calc(70% - 20px);
+                background-color:#F4F4F4;
+                margin-right: 20px;
+
+            }
+            .calc .sectionTitle{
+                font-size: 24px;
+                text-align: left;
+                margin: 0;
+            }
+            .calc h6{
+                width: 50%;
+                float: left;
+                color: #F2923B;
+            }
+            .calc h6:last-of-type{
+                text-align: right;
+            }
+            .calc .outputLeft, .calc .outputRight{
+                width: 50%;
+                float: left;
+                margin: 20px 0;
+                font-size: 12px;
+                text-align: left;
+            }
+            .outputRight p{
+                color: #F2923B;
+            }
+            .outputLeft p:first-child, .outputRight p:first-child{
+                margin-bottom: 20px;
+            }
+            .calc .inputContainer{
+                margin-bottom: 0px;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <!-- <div class="container"> -->
+            <a href="index.html" id="logo">
+                <img src="img/logo.svg" alt="">
+                <img src="img/logoText.svg" alt="">
+            </a>
+            <input type="checkbox" id="check">
+            <label id="hamburger" for="check">
+                <span></span>
+            </label>
+            <ul class="menu">
+                <li>
+                    <a href="#/">Вход</a>
+                </li>
+                <li>
+                    <a href="#/" class="signUpButton">Регистрация</a>
+                </li>
+                <li>
+                    <a href="#/" class="menuButton">
+                        Новости
+                        <img src="img/tri.svg" alt="">
+                    </a>
+                    <nav>
+                        <a href="news.html">
+                            <img src="img/circle.svg" alt="">
+                            новости
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="analytics.html">
+                            <img src="img/circle.svg" alt="">
+                            аналитика
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="signals.html">
+                            <img src="img/circle.svg" alt="">
+                            сигналы
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                    </nav>
+                </li>
+                <li>
+                    <a href="">Поддержка</a>
+                </li>
+                <li>
+                    <a href="#/" class="menuButton">
+                        Финансы
+                        <img src="img/tri.svg" alt="">
+                    </a>
+                    <nav>
+                        <a href="exchange.html">
+                            <img src="img/circle.svg" alt="">
+                            обмен
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="balances.html">
+                            <img src="img/circle.svg" alt="">
+                            балансы
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="history.html">
+                            <img src="img/circle.svg" alt="">
+                            история
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                    </nav>
+                </li>
+            </ul>
+            <div class="rightPart">
+                <a href="" class="loginButton">
+                    <!-- <img src="img/loginIcon.svg"> -->
+                    Вход
+                </a>
+                <a href="" class="signUpButton">
+                    Регистрация
+                </a>
+            </div>
+            <!-- </div> -->
+        </header>
+        <main>
+            <h2 class="sectionTitle">Вывод</h2>
+            <!-- <ul class="sideMenu">
+                <li>
+                    <a href="">Обмен</a>
+                </li>
+                <li>
+                    <a href="">Балансы</a>
+                </li>
+                <li>
+                    <a href="">
+                        <b>История</b>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="">История ввода и вывода средств</a>
+                        </li>
+                        <li>
+                            <a href="">История обменов</a>
+                        </li>
+                        <li>
+                            <a href="">История кодов</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul> -->
+            <div class="currencyContainer calc">
+                <!-- <h2 class="sectionTitle">Валюта</h2> -->
+                <!-- <h3>Баланс: 1,000134</h3> -->
+                <h3>Баланс:</h3>
+                <div class="inputContainer">
+                    <input style="pointer-events: none;" type="text" placeholder="0.04244">
+                    <select name="" id="" onchange="balanceChange(this)">
+                        <option value="">₿</option>
+                        <option value="">₽</option>
+                    </select>
+                    <img src="img/orangeArrow.svg" alt="" class="orangeArrow">
+                </div>
+            </div>
+            <div class="calc">
+                <!-- <div class="inputContainer"> -->
+                    <div class="inputContainer bankContainer" style="margin-bottom: 20px;">
+                        <img id="bankLogo" src="img/tinkoff.svg" alt="">
+                        <!-- <input style="pointer-events: none; padding-left: 40px;" type="text" placeholder="Тинькофф"> -->
+                        <select name="" id="" onchange="bankChange(this)" style="width: 100%; font-size: 16px; padding-left: 40px; text-align-last: left;">
+                            <option value="">Тинькофф</option>
+                            <option value="">Сбербанк</option>
+                        </select>
+                        <img src="img/orangeArrow.svg" alt="" class="orangeArrow">
+                    </div>
+                    <input type="text" placeholder="Адрес получателя" class="customInput">
+                    <input type="text" placeholder="Сумма вывода" class="customInput">
+                    <!-- <select name="" id="">
+                        <option value="">01</option>
+                        <option value="">02</option>
+                    </select>
+                    <img src="img/orangeArrow.svg" alt="" class="orangeArrow"> -->
+                <!-- </div> -->
+                <div>
+                    <div class="leftOption">
+                        <h4>Количество:</h4>
+                    </div>
+                </div>
+                <div class="rangeContainer">
+                    <p id="rangeLabel">0</p>
+                    <input
+                        type="range"
+                        min="0"
+                        max="0.04244"
+                        value="0"
+                        step="0.00001"
+                        class="rangeSlider"
+                    >
+                    <h6>0 BTC</h6>
+                    <h6 id="currencyMax">0.04244 BTC</h6>
+                </div>
+                <div class="outputLeft">
+                    <p>Комиссия:</p>
+                    <p>Вы получите:</p>
+                </div>
+                <div class="outputRight">
+                    <p>0.05%</p>
+                    <p>0.001 BTC</p>
+                </div>
+                
+                <a href="" class="orangeButton">Отправить</a>
+            </div>
+            <form action="">
+                <h2 class="sectionTitle">Ранее выводили</h2>
+                <div class="tableContainer">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Сумма</th>
+                                <th>Валюта</th>
+                                <th>Комиссия</th>
+                                <th>Статус</th>
+                                <th>Счет(Адрес)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>12.07.2021</td>
+                                <td>10 000</td>
+                                <td>₽</td>
+                                <td>3%</td>
+                                <td>В обработке</td>
+                                <!-- <td>Пополнение</td> -->
+                                <td>934829384</td>
+                            </tr>
+                            <tr>
+                                <td>12.07.2021</td>
+                                <td>12 000</td>
+                                <td>$</td>
+                                <td>3%</td>
+                                <td>В обработке</td>
+                                <!-- <td>Вывод</td> -->
+                                <td>934829384</td>
+                            </tr>
+                            <tr>
+                                <td>12.07.2021</td>
+                                <td>10 000</td>
+                                <td>₽</td>
+                                <td>3%</td>
+                                <td>В обработке</td>
+                                <!-- <td>Пополнение</td> -->
+                                <td>934829384</td>
+                            </tr>
+                            <tr>
+                                <td>12.07.2021</td>
+                                <td>11 000</td>
+                                <td>₽</td>
+                                <td>3%</td>
+                                <td>В обработке</td>
+                                <!-- <td>Код</td> -->
+                                <td>934829384</td>
+                            </tr>
+                            <tr>
+                                <td>12.07.2021</td>
+                                <td>15 000</td>
+                                <td>$</td>
+                                <td>3%</td>
+                                <td>В обработке</td>
+                                <!-- <td>Вывод</td> -->
+                                <td>934829384</td>
+                            </tr>
+                            <tr>
+                                <td>12.07.2021</td>
+                                <td>10 000</td>
+                                <td>$</td>
+                                <td>3%</td>
+                                <td>В обработке</td>
+                                <!-- <td>Код</td> -->
+                                <td>934829384</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <button>Загрузить ещё</button>
+            </form>
+        </main>
+        <script src="script.js"></script>
+        <script>
+            let slider = document.getElementsByClassName("rangeSlider")[0];
+            let rangeLabel = document.getElementById("rangeLabel");
+            let currencyMax = document.getElementById("currencyMax");
+            let dist;
+            let bankContainer = document.getElementsByClassName("bankContainer")[0];
+            slider.value = slider.max/2
+            currencies = ["BTC", "Руб."]
+            let currency = currencies[0];
+            getRange(slider.value);
+            bankContainer.style.display = "none";
+
+
+            balances = ["0.04244", "10000"]
+            bankLogos = ["img/tinkoff.svg", "img/sberbank.svg"]
+
+            function bankChange(s) {
+                s.previousElementSibling.src = bankLogos[s.selectedIndex]
+            }
+
+            function balanceChange(s) {
+                console.log(balances[s.selectedIndex]);
+                s.previousElementSibling.placeholder = balances[s.selectedIndex]
+                slider.max = balances[s.selectedIndex]
+                currency = currencies[s.selectedIndex]
+                slider.step = slider.max / 10000
+                slider.value = slider.max/2
+                currencyMax.innerHTML = balances[s.selectedIndex] + " " + currencies[s.selectedIndex]
+                getRange(slider.value);
+                if (s.selectedIndex == 1) {
+                    bankContainer.style.display = "block";
+                }
+                else {
+                    bankContainer.style.display = "none";
+                }
+            }
+
+            function getRange(val) {
+                dist = slider.offsetWidth / slider.max * val;
+                if ((dist + rangeLabel.offsetWidth + 10) < slider.offsetWidth) {
+                rangeLabel.style.transform = "translateX(" + dist + "px)"
+                }
+                rangeLabel.innerHTML = Math.round(val * 100000) / 100000 + " " + currency;
+            }
+
+            slider.oninput = function() {
+                // norm =  (slider.offsetWidth - 18) / rangeLabel.offsetWidth;
+                getRange(this.value);
+
+            }
+        </script>
+    </body>
+</html>

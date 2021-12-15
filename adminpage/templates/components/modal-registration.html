@@ -1,0 +1,18 @@
+<div class="modal signUpModal">
+    <form action="{% url 'registration' %}" method="post">
+        {% csrf_token %}
+        <h2>Регистрация</h2>
+        <input type="text" required name="email" placeholder="Почта">
+        <div class="error-field"></div>
+        <input type="text" required name="password" placeholder="Придумайте пароль">
+        <div class="error-field"></div>
+        <input type="checkbox" name="bool_field" required id="signUpBox" style="cursor: pointer">
+        <label for="signUpBox">Принять
+            <a href="">условия соглашения</a>
+        </label>
+        <div class="error-field bool" style="text-align: center"></div>
+        <a class="orangeButton button-registration">
+            Зарегистрироваться
+        </a>
+    </form>
+</div>

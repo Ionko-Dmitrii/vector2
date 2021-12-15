@@ -1,0 +1,13 @@
+<div class="modal loginModal">
+    <form action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <h2>Вход</h2>
+        <input type="text" name="email" placeholder="Почта">
+        <div class="error-field"></div>
+        <input type="text" name="password" placeholder="Пароль">
+        <div class="error-field"></div>
+        <a href="{% url 'send-link' %}">Забыли пароль?</a>
+        <a class="orangeButton button-login">Войти</a>
+        <a href="##" class="open-registration">Зарегистрироваться</a>
+    </form>
+</div>

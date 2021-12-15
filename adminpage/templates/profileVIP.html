@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Klientela</title>
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="profile.css">
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+        <style>
+            .profileCard{
+                max-width: none;
+            }
+            .small{
+                font-size: 24px;
+                text-align: left;
+            }
+            #orangeVip{
+                border: 1px solid #F2923B;
+                padding: 20px;
+                border-radius: 4px;
+                width: 150px;
+                display: block;
+                float: left;
+                box-sizing: border-box;
+            }
+            .profileInfo{
+                width: calc(100% - 200px);
+                float: right;
+                clear: none;
+            }
+            .profileInfo::after{
+                left: -6px;
+                top: 100px;
+                transform: rotate(-135deg);
+            }
+            .profileInfo > div{
+                width: auto;
+            }
+            /* .profileLeft img:last-of-type{
+                display: none;
+            } */
+        </style>
+    </head>
+    <body>
+        <header>
+            <!-- <div class="container"> -->
+            <a href="index.html" id="logo">
+                <img src="img/logo.svg" alt="">
+                <img src="img/logoText.svg" alt="">
+            </a>
+            <input type="checkbox" id="check">
+            <label id="hamburger" for="check">
+                <span></span>
+            </label>
+            <ul class="menu">
+                <li>
+                    <a href="#/">Вход</a>
+                </li>
+                <li>
+                    <a href="#/" class="signUpButton">Регистрация</a>
+                </li>
+                <li>
+                    <a href="#/" class="menuButton">
+                        Новости
+                        <img src="img/tri.svg" alt="">
+                    </a>
+                    <nav>
+                        <a href="news.html">
+                            <img src="img/circle.svg" alt="">
+                            новости
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="analytics.html">
+                            <img src="img/circle.svg" alt="">
+                            аналитика
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="signals.html">
+                            <img src="img/circle.svg" alt="">
+                            сигналы
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                    </nav>
+                </li>
+                <li>
+                    <a href="">Поддержка</a>
+                </li>
+                <li>
+                    <a href="#/" class="menuButton">
+                        Финансы
+                        <img src="img/tri.svg" alt="">
+                    </a>
+                    <nav>
+                        <a href="exchange.html">
+                            <img src="img/circle.svg" alt="">
+                            обмен
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="balances.html">
+                            <img src="img/circle.svg" alt="">
+                            балансы
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                        <a href="history.html">
+                            <img src="img/circle.svg" alt="">
+                            история
+                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
+                        </a>
+                    </nav>
+                </li>
+            </ul>
+            <div class="rightPart">
+                <a href="" class="loginButton">
+                    <!-- <img src="img/loginIcon.svg"> -->
+                    Вход
+                </a>
+                <a href="" class="signUpButton">
+                    Регистрация
+                </a>
+            </div>
+            <!-- </div> -->
+        </header>
+        <main>
+            <h2 class="sectionTitle">Базовая информация</h2>
+            <ul class="sideMenu">
+                <li>
+                    <a href="">Обмен</a>
+                </li>
+                <li>
+                    <a href="">Балансы</a>
+                </li>
+                <li>
+                    <a href="">
+                        <b>История</b>
+                    </a>
+                    <ul>
+                        <li>
+                            <a href="">История ввода и вывода средств</a>
+                        </li>
+                        <li>
+                            <a href="">История обменов</a>
+                        </li>
+                        <li>
+                            <a href="">История кодов</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="mainRight">
+                <div class="profileCard">
+                    <div class="profileLeft">
+                        <img src="img/man.jpg" alt="">
+                        <img src="img/vip.svg" alt="">
+                    </div>
+                    <div class="profileRight">
+                        <div class="profileEmail">
+                            <a href="">User@mail.com</a>
+                            <img src="img/mark.svg" alt="">
+                        </div>
+                        <p>«Новая экономика, новый мир и новая демографическая ситуация требуют новой финансовой системы», – заявил председатель Банка Англии Марк Карни. Цифровизация меняет структуру экономики и бизнес-модели компаний, в мировой экономике и финансах растет доля развивающихся рынков, </p>
+                    </div>
+                </div>
+                <div class="sectionTitle small">Ваш уровень:</div>
+                <img src="img/vip.svg" alt="" id="orangeVip">
+                <div class="profileInfo">
+                    <div class="infoLeft">
+                        <h3>Что дает</h3>
+                        <p>«Новая экономика, новый мир и новая демографическая ситуация требуют новой финансовой системы», – заявил председатель Банка Англии Марк Карни. Цифровизация меняет структуру экономики и бизнес-модели компаний, в мировой экономике и финансах растет доля развивающихся рынков,</p>
+                    </div>
+                    <div class="infoRight">
+                        <h3>Как увеличить текущий статус</h3>
+                        <p>«Новая экономика, новый мир и новая демографическая ситуация требуют новой финансовой системы», – заявил председатель Банка Англии Марк Карни. Цифровизация меняет структуру экономики и бизнес-модели компаний, в мировой экономике и финансах растет доля развивающихся рынков,</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <script src="script.js"></script>
+    </body>
+</html>
