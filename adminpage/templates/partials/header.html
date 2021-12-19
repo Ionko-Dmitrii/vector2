@@ -11,12 +11,28 @@
         <span></span>
     </label>
     <ul class="menu">
-        <li>
-            <a href="#/">Вход</a>
-        </li>
-        <li>
-            <a href="#/" class="signUpButton">Регистрация</a>
-        </li>
+        {% if user.is_authenticated %}
+            <li>
+                <a class="loginButton">
+                    <img style="min-width: 20px; transform: rotate(0deg)" src="{% static 'img/loginIcon.svg' %}">
+                    {{ user.email }}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'logout' %}" class="loginButton">
+                    Выход
+                </a>
+            </li>
+            </div>
+        {% else %}
+            <li>
+                <a href="#/" class="loginButton">Вход</a>
+            </li>
+            <li>
+                <a href="#/" class="signUpButton">Регистрация</a>
+            </li>
+        {% endif %}
+
         <li>
             <a href="#/" class="menuButton">
                 Новости
@@ -74,9 +90,9 @@
         </li>
     </ul>
     {% if user.is_authenticated %}
-         <div class="rightPart">
-            <a class="loginButton">
-                <img src="{% static 'img/loginIcon.svg' %}">
+        <div class="rightPart">
+            <a class="loginButton" style="display: flex; align-items: center">
+                <img style="margin-right: 12px" src="{% static 'img/loginIcon.svg' %}">
                 {{ user.email }}
             </a>
             <a href="{% url 'logout' %}" class="loginButton">
