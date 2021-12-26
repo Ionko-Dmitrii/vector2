@@ -676,6 +676,18 @@ class commission(models.Model):
         decimal_places=8,
         verbose_name='Комиссия вывода BTC в btc'
     )
+    min_rub = models.DecimalField(
+        decimal_places=2,
+        max_digits=24,
+        verbose_name='Мин. сумма обмена в ₽',
+        null=True
+    )
+    min_btc = models.DecimalField(
+        decimal_places=8,
+        max_digits=24,
+        verbose_name='Мин. сумма обмена в ₿',
+        null=True
+    )
 
     class Meta:
         verbose_name = 'комиссия'

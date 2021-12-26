@@ -17,7 +17,10 @@
             <div>
                 <div class="leftOption">
                     <h4>мин. сумма</h4>
-                    <h4>1000 RUB</h4>
+                    <h4>
+                        <span id="min-btc" style="display: none">{{ min_value.min_btc }} BTC</span>
+                        <span id="min-rub">{{ min_value.min_rub }} RUB</span>
+                    </h4>
                 </div>
                 <div class="rightOption">
                     <h4>Доступно</h4>
@@ -83,7 +86,7 @@
                                 <td>{{ history.btc_value }} ₿</td>
                                 <td>{{ history.rub_value }} ₽</td>
                             {% endif %}
-                            <td>{{ history.commission }} %</td>
+                            <td>{{ history.commission }} ₽</td>
                             <td>{{ history.currency_usd }} ₽</td>
                         </tr>
                     {% endfor %}
@@ -98,8 +101,12 @@
     <script>
         let max_rub = {{ user_profile.rub_value|safe }};
         let max_btc = {{ user_profile.btc_value|safe }};
+        let min_rub = {{ min_value.min_rub|safe }};
+        let min_btc = {{ min_value.min_rub|safe }};
         let availableFoundsRub = document.querySelector('#rub');
         let availableFoundsBTC = document.querySelector('#btc');
+        let minBTC = document.querySelector('#min-btc');
+        let minRUB = document.querySelector('#min-rub');
         let currencyButton = document.getElementById("currencyButton");
         let places = [
             "1 Руб. = {{ currency.one_rub_in_us }} USD",
@@ -145,9 +152,13 @@
             if (document.querySelector('.inputContainer.js-oneInput select').value === '₽') {
                 availableFoundsBTC.style = 'display: none';
                 availableFoundsRub.style = 'display: block';
+                minBTC.style = 'display: none';
+                minRUB.style = 'display: block';
             } else {
                 availableFoundsRub.style = 'display: none';
                 availableFoundsBTC.style = 'display: block';
+                minRUB.style = 'display: none';
+                minBTC.style = 'display: block';
             }
         }
 
@@ -175,9 +186,13 @@
             if (this.value === '₽') {
                 availableFoundsBTC.style = 'display: none';
                 availableFoundsRub.style = 'display: block';
+                minRUB.style = 'display: block';
+                minBTC.style = 'display: none';
             } else {
                 availableFoundsRub.style = 'display: none';
                 availableFoundsBTC.style = 'display: block';
+                minRUB.style = 'display: none';
+                minBTC.style = 'display: block';
             }
         })
 
@@ -269,6 +284,8 @@
             });
             if (fromCurrency === '₽' && value > max_rub || fromCurrency === '₿' && value > max_btc) {
                 document.querySelector('.submitModal .error-field').innerHTML = 'Введенная сумма больше доступной!!'
+            } else if (fromCurrency === '₽' && value < min_rub || fromCurrency === '₿' && value < min_btc) {
+                document.querySelector('.submitModal .error-field').innerHTML = 'Введенная сумма меньше минимальной!!'
             } else {
                 document.querySelector('.submitModal .error-field').innerHTML = ''
                 fetch(request_exchange).then(response => response.json()).then(result => {
@@ -287,7 +304,7 @@
                             <td>${result.history.date}</td>
                             <td>${result.history.rub_val} ₽</td>
                             <td>${result.history.btc_val} ₿</td>
-                            <td>${result.history.commission} %</td>
+                            <td>${result.history.commission} ₽</td>
                             <td>${result.history.currency_usd} ₽</td>
                         <tr>`
                             )
@@ -298,7 +315,7 @@
                             <td>${result.history.date}</td>
                             <td>${result.history.btc_val} ₿</td>
                             <td>${result.history.rub_val} ₽</td>
-                            <td>${result.history.commission} %</td>
+                            <td>${result.history.commission} ₽</td>
                             <td>${result.history.currency_usd} ₽</td>
                         <tr>`
                             )

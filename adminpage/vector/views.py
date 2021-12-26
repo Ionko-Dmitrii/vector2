@@ -8,10 +8,10 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
-from currency_price_online import (
-    get_latest_currency_price, get_latest_crypto_price_usd
-)
 from vector.models import users, commission, exchange
+from vector.service import (
+    get_latest_currency_price,  get_latest_crypto_price_usd
+)
 
 
 class IndexPageView(TemplateView):
@@ -40,6 +40,7 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
         context['user_exchange'] = exchange.objects.filter(
             user=self.request.user
         ).order_by('-id')
+        context['min_value'] = commission.objects.first()
 
         return context
 
@@ -66,6 +67,7 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
             btc_val = 0
             rub_val = 0
             type_exchange = 0
+            commission_value = 0
             user = users.objects.get(email=request.user.email)
             create_dt = datetime.datetime.now()
             if data.get('from_currency') == '₽':
@@ -91,7 +93,7 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
                         create_dt=create_dt,
                         btc_value=btc_val,
                         rub_value=rub_val,
-                        commission=commission_exchange,
+                        commission=commission_value,
                         currency_usd=one_dollar,
                         currency_btc=round((one_dollar * one_cripto), ndigits=2),
                         end_dt=datetime.datetime.now(),
@@ -109,7 +111,7 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
                             'btc_val': btc_val,
                             'rub_val': rub_val,
                             'type': type_exchange,
-                            'commission': commission_exchange,
+                            'commission': commission_value,
                             'currency_usd': one_dollar,
                         }
                     ), status=200)
