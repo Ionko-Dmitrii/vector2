@@ -1,7 +1,6 @@
 {% load static %}
 
 <header>
-    <!-- <div class="container"> -->
     <a href="{% url 'home' %}" id="logo">
         <img src="{% static 'img/logo.svg' %}" alt="">
         <img src="{% static 'img/logoText.svg' %}" alt="">
@@ -12,27 +11,61 @@
     </label>
     <ul class="menu">
         {% if user.is_authenticated %}
-            <li>
+            <li class="mobileLi">
                 <a class="loginButton">
                     <img style="min-width: 20px; transform: rotate(0deg)" src="{% static 'img/loginIcon.svg' %}">
-                    {{ user.email }}
                 </a>
+                <nav class="signedInNav">
+                    <a href="">
+                        <div>
+                            <h5>{{ user.email }}</h5>
+                            <h5 class="gold">
+                                <img src="{% static 'img/diamond.png' %}" alt="">
+                                VIP 0
+                                <span>Не подтверждено</span>
+                            </h5>
+                        </div>
+                        <img src="{% static 'img/next.png' %}" alt="">
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/shield.png' %}" alt="">
+                        Безопасность
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/credit-card.png' %}" alt="">
+                        Верификация
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/plug.png' %}" alt="">
+                        Управление API
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/tickets.png' %}" alt="">
+                        Центр наград
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/clipboard.png' %}" alt="">
+                        Центр заданий
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/referral.png' %}" alt="">
+                        Реферальная программа
+                        <span>Earn bonus</span>
+                    </a>
+                    <a href="{% url 'logout' %}" class="iconButton borderTopButton">
+                        <img src="{% static 'img/power-off.png' %}" alt="">
+                        Выйти
+                    </a>
+                </nav>
             </li>
-            <li>
-                <a href="{% url 'logout' %}" class="loginButton">
-                    Выход
-                </a>
-            </li>
-            </div>
         {% else %}
-            <li>
-                <a href="#/" class="loginButton">Вход</a>
+            <li class="mobileLi">
+                <a href="#/" class="loginButton js-openLoginModal">Вход</a>
             </li>
-            <li>
+            <li class="mobileLi">
                 <a href="#/" class="signUpButton">Регистрация</a>
             </li>
         {% endif %}
-
         <li>
             <a href="#/" class="menuButton">
                 Новости
@@ -68,7 +101,7 @@
                 <img src="{% static 'img/tri.svg' %}" alt="">
             </a>
             <nav>
-                <a href="exchange.html">
+                <a href="{% url 'exchange' %}">
                     <img src="{% static 'img/circle.svg' %}" alt="">
                     обмен
                     <p>Lorem ipsum, dolor sit amet consectetur adipisicing
@@ -91,17 +124,57 @@
     </ul>
     {% if user.is_authenticated %}
         <div class="rightPart">
-            <a class="loginButton" style="display: flex; align-items: center">
-                <img style="margin-right: 12px" src="{% static 'img/loginIcon.svg' %}">
-                {{ user.email }}
-            </a>
-            <a href="{% url 'logout' %}" class="loginButton">
-                Выход
-            </a>
+            <div class="signedInPanel">
+                <a href="##" class="loginButton">
+                    <img style="margin-right: 12px" src="{% static 'img/loginIcon.svg' %}">
+                </a>
+                <nav class="signedInNav">
+                    <a href="">
+                        <div>
+                            <h5>{{ user.email }}</h5>
+                            <h5 class="gold">
+                                <img src="{% static 'img/diamond.png' %}" alt="">
+                                VIP 0
+                                <span>Не подтверждено</span>
+                            </h5>
+                        </div>
+                        <img src="{% static 'img/next.png' %}" alt="">
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/shield.png' %}" alt="">
+                        Безопасность
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/credit-card.png' %}" alt="">
+                        Верификация
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/plug.png' %}" alt="">
+                        Управление API
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/tickets.png' %}" alt="">
+                        Центр наград
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/clipboard.png' %}" alt="">
+                        Центр заданий
+                    </a>
+                    <a href="" class="iconButton">
+                        <img src="{% static 'img/referral.png' %}" alt="">
+                        Реферальная программа
+                        <span>Earn bonus</span>
+                    </a>
+                    <a href="{% url 'logout' %}" class="iconButton borderTopButton">
+                        <img src="{% static 'img/power-off.png' %}" alt="">
+                        Выйти
+                    </a>
+                </nav>
+            </div>
         </div>
     {% else %}
         <div class="rightPart">
-            <a href="#/" class="loginButton">
+            <a href="#/" class="loginButton js-openLoginModal">
                 Вход
             </a>
             <a href="#/" class="signUpButton">

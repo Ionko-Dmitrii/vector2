@@ -1,274 +1,315 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Klientela</title>
-        <link rel="stylesheet" href="style.css">
-        <link rel="stylesheet" href="exchange.css">
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-    </head>
-    <body>
-        <div class="modal submitModal">
-            <form action="">
-                <h2>Вы собираетесь обменять 1 рубль на 0,00031 Bitcoin</h2>
-                <h2>Продолжить обмен?</h2>
-                <a href="" class="orangeButton">Назад</a>
-                <a href="" class="orangeButton">Обменять</a>
-            </form>
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+    <link rel="stylesheet" href="{% static 'css/exchange.css' %}">
+{% endblock %}
+
+{% block title %}Объмен{% endblock %}
+
+{% block content %}
+    {% include 'components/modal-exchange.html' %}
+    {% include 'components/modal-finish-exchange.html' %}
+    <main>
+        {% csrf_token %}
+        <h2 class="sectionTitle">Обмен</h2>
+        <div class="calc">
+            <h2>Калькулятор обмена пар</h2>
+            <div>
+                <div class="leftOption">
+                    <h4>мин. сумма</h4>
+                    <h4>1000 RUB</h4>
+                </div>
+                <div class="rightOption">
+                    <h4>Доступно</h4>
+                    <h4>
+                        <span id="btc"
+                              style="display: none">{{ user_profile.btc_value }} BTC</span>
+                        <span id="rub">{{ user_profile.rub_value }} RUB</span>
+                    </h4>
+                </div>
+            </div>
+            <div class="inputContainer js-oneInput">
+                <input type="number" placeholder="1 Руб. = 0,01415078 USD">
+                <select name="" id="firstSelect">
+                    <option value="₽" name="rub">₽</option>
+                    <option value="₿" name="btc">₿</option>
+                </select>
+                <img src="{% static 'img/orangeArrow.svg' %}" alt=""
+                     class="orangeArrow">
+            </div>
+            <div>
+                <div class="leftOption">
+                    <h4>курс обмена</h4>
+                    <h4>1 BTC = {{ currency.one_btc_in_rub }} RUB</h4>
+                </div>
+                <div class="rightOption">
+                    <a href="#/" id="currencyButton">
+                        <img src="{% static 'img/arrows.svg' %}" alt="">
+                    </a>
+                </div>
+            </div>
+            <div class="inputContainer js-twoInput">
+                <input type="number" placeholder="1 BTC. = 9290.01 USD">
+                <select name="" id="secondSelect">
+                    <option value="₽">₽</option>
+                    <option value="₿" selected>₿</option>
+                </select>
+                <img src="{% static 'img/orangeArrow.svg' %}" alt=""
+                     class="orangeArrow">
+            </div>
+            <a href="#/" class="orangeButton exchangeButton">Обменять</a>
         </div>
-        <header>
-            <!-- <div class="container"> -->
-            <a href="index.html" id="logo">
-                <img src="img/logo.svg" alt="">
-                <img src="img/logoText.svg" alt="">
-            </a>
-            <input type="checkbox" id="check">
-            <label id="hamburger" for="check">
-                <span></span>
-            </label>
-            <ul class="menu">
-                <li>
-                    <a href="#/">Вход</a>
-                </li>
-                <li>
-                    <a href="#/" class="signUpButton">Регистрация</a>
-                </li>
-                <li>
-                    <a href="#/" class="menuButton">
-                        Новости
-                        <img src="img/tri.svg" alt="">
-                    </a>
-                    <nav>
-                        <a href="news.html">
-                            <img src="img/circle.svg" alt="">
-                            новости
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-                        </a>
-                        <a href="analytics.html">
-                            <img src="img/circle.svg" alt="">
-                            аналитика
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-                        </a>
-                        <a href="signals.html">
-                            <img src="img/circle.svg" alt="">
-                            сигналы
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-                        </a>
-                    </nav>
-                </li>
-                <li>
-                    <a href="">Поддержка</a>
-                </li>
-                <li>
-                    <a href="#/" class="menuButton">
-                        Финансы
-                        <img src="img/tri.svg" alt="">
-                    </a>
-                    <nav>
-                        <a href="exchange.html">
-                            <img src="img/circle.svg" alt="">
-                            обмен
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-                        </a>
-                        <a href="balances.html">
-                            <img src="img/circle.svg" alt="">
-                            балансы
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-                        </a>
-                        <a href="history.html">
-                            <img src="img/circle.svg" alt="">
-                            история
-                            <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit.</p>
-                        </a>
-                    </nav>
-                </li>
-            </ul>
-            <div class="rightPart">
-                <a href="" class="loginButton">
-                    <!-- <img src="img/loginIcon.svg"> -->
-                    Вход
-                </a>
-                <a href="" class="signUpButton">
-                    Регистрация
-                </a>
+        <form action="">
+            <h2 class="sectionTitle">История обменов</h2>
+            <div class="tableContainer">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Дата</th>
+                        <th>Отдал Х</th>
+                        <th>Получил У</th>
+                        <th>Комиссия</th>
+                        <th>Курс</th>
+                    </tr>
+                    </thead>
+                    <tbody class="table-history">
+                    {% for history in user_exchange %}
+                        <tr>
+                            <td>{{ history.create_dt|date:"d.m.Y H:i" }}</td>
+                            {% if history.type == 0 %}
+                                <td>{{ history.rub_value }} ₽</td>
+                                <td>{{ history.btc_value }} ₿</td>
+                            {% else %}
+                                <td>{{ history.btc_value }} ₿</td>
+                                <td>{{ history.rub_value }} ₽</td>
+                            {% endif %}
+                            <td>{{ history.commission }} %</td>
+                            <td>{{ history.currency_usd }} ₽</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
-            <!-- </div> -->
-        </header>
-        <main>
-            <h2 class="sectionTitle">Обмен</h2>
-            <!-- <ul class="sideMenu">
-                <li>
-                    <a href="">Обмен</a>
-                </li>
-                <li>
-                    <a href="">Балансы</a>
-                </li>
-                <li>
-                    <a href="">
-                        <b>История</b>
-                    </a>
-                    <ul>
-                        <li>
-                            <a href="">История ввода и вывода средств</a>
-                        </li>
-                        <li>
-                            <a href="">История обменов</a>
-                        </li>
-                        <li>
-                            <a href="">История кодов</a>
-                        </li>
-                    </ul>
-                </li>
-            </ul> -->
-            <div class="calc">
-                <h2>Калькулятор обмена пар</h2>
-                <div>
-                    <div class="leftOption">
-                        <h4>мин. сумма</h4>
-                        <h4>3418,37 RUB</h4>
-                    </div>
-                    <div class="rightOption">
-                        <h4>Доступно</h4>
-                        <h4>0,1004155 BTC</h4>
-                    </div>
-                </div>
-                <div class="inputContainer">
-                    <input type="text" placeholder="1 Руб. = 0,01415078 USD">
-                    <select name="" id="firstSelect">
-                        <option value="₽">₽</option>
-                        <option value="₿">₿</option>
-                        <!-- <option value="$">$</option> -->
-                    </select>
-                    <img src="img/orangeArrow.svg" alt="" class="orangeArrow">
-                </div>
-                <div>
-                    <div class="leftOption">
-                        <h4>курс обмена</h4>
-                        <h4>1 BTC = 683674,26 RUB</h4>
-                    </div>
-                    <div class="rightOption">
-                        <a href="#/" id="currencyButton">
-                            <img src="img/arrows.svg" alt="">
-                        </a>
-                    </div>
-                </div>
-                <div class="inputContainer">
-                    <input type="text" placeholder="1 BTC. = 9290.01 USD">
-                    <select name="" id="secondSelect">
-                        <option value="₽">₽</option>
-                        <option value="₿" selected>₿</option>
-                        <!-- <option value="$">$</option> -->
-                    </select>
-                    <img src="img/orangeArrow.svg" alt="" class="orangeArrow">
-                </div>
-                <a href="#/" class="orangeButton exchangeButton">Обменять</a>
-            </div>
-            <form action="">
-                <h2 class="sectionTitle">История обменов</h2>
-                <div class="tableContainer">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Дата</th>
-                                <th>Отдал Х</th>
-                                <th>Получил У</th>
-                                <th>Комиссия</th>
-                                <th>Курс</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>12.07.2021</td>
-                                <td>10 000</td>
-                                <td>10 000</td>
-                                <td>0.3%</td>
-                                <td>74</td>
-                            </tr>
-                            <tr>
-                                <td>12.07.2021</td>
-                                <td>12 000</td>
-                                <td>12 000</td>
-                                <td>0.3%</td>
-                                <td>74</td>
-                            </tr>
-                            <tr>
-                                <td>12.07.2021</td>
-                                <td>10 000</td>
-                                <td>10 000</td>
-                                <td>0.3%</td>
-                                <td>74</td>
-                            </tr>
-                            <tr>
-                                <td>12.07.2021</td>
-                                <td>11 000</td>
-                                <td>11 000</td>
-                                <td>0.3%</td>
-                                <td>74</td>
-                            </tr>
-                            <tr>
-                                <td>12.07.2021</td>
-                                <td>15 000</td>
-                                <td>15 000</td>
-                                <td>0.3%</td>
-                                <td>74</td>
-                            </tr>
-                            <tr>
-                                <td>12.07.2021</td>
-                                <td>10 000</td>
-                                <td>10 000</td>
-                                <td>0.3%</td>
-                                <td>74</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <button>Загрузить ещё</button>
-            </form>
-        </main>
-        <script>
-            let currencyButton = document.getElementById("currencyButton");
-            let places = ["1 Руб. = 0.01415078 USD", "1 BTC. = 9290.01 USD", "1 USD. = 73.76 Руб."];
-            let firstSelect = document.getElementById("firstSelect")
-            let submitModal = document.getElementsByClassName("submitModal")[0];
-            // console.log(firstSelect);
-            let secondSelect = document.getElementById("secondSelect")
-            let exchangeButton = document.getElementsByClassName("exchangeButton")[0]
+            <button class="js-showMoreHistory">Загрузить ещё</button>
+        </form>
+    </main>
+{% endblock %}
+{% block js %}
+    <script>
+        let max_rub = {{ user_profile.rub_value|safe }};
+        let max_btc = {{ user_profile.btc_value|safe }};
+        let availableFoundsRub = document.querySelector('#rub');
+        let availableFoundsBTC = document.querySelector('#btc');
+        let currencyButton = document.getElementById("currencyButton");
+        let places = [
+            "1 Руб. = {{ currency.one_rub_in_us }} USD",
+            "1 BTC. = {{ currency.one_btc_in_us }} USD",
+            "1 USD. = {{ currency.one_dollar_in_rub }} Руб."
+        ];
+        let firstSelect = document.getElementById("firstSelect");
+        let submitModal = document.getElementsByClassName("submitModal")[0];
+        let secondSelect = document.getElementById("secondSelect");
+        let exchangeButton = document.getElementsByClassName("exchangeButton")[0];
+        let inputContainer = document.querySelectorAll('.inputContainer');
+        let closeModal = document.querySelectorAll('.js-closeModal');
 
-            exchangeButton.onclick = () => {
-                submitModal.style.display = "block";
-            }
-            submitModal.onclick = () => {
-                submitModal.style.display = "none";
-            }
+        exchangeButton.onclick = () => {
+            submitModal.style.display = "block";
+        }
+        submitModal.onclick = () => {
+            submitModal.style.display = "none";
+            document.querySelector('.submitModal .error-field').innerHTML = ''
+        }
 
-            submitModal.children[0].onclick = (e) => {
-                e.stopPropagation();
-            }
+        submitModal.children[0].onclick = (e) => {
+            e.stopPropagation();
+        }
 
-            currencyButton.onclick = () => {
-                console.log(firstSelect.selectedIndex);
-                let firstOption = firstSelect.selectedIndex;
-                let secondOption = secondSelect.selectedIndex;
-                firstSelect.options[secondOption].selected = "selected";
-                firstSelect.previousElementSibling.placeholder = places[secondOption]
-                secondSelect.options[firstOption].selected = "selected";
-                secondSelect.previousElementSibling.placeholder = places[firstOption]
+        closeModal.forEach((elem, i) => {
+            elem.onclick = () => {
+                document.querySelectorAll('.modal-exchange')[i].style.display = "none";
+                document.querySelector('.submitModal .error-field').innerHTML = '';
             }
+        })
 
-            function refreshSelect(s) {
-                s.previousElementSibling.placeholder = places[s.selectedIndex]
+        currencyButton.onclick = () => {
+            let firstOption = firstSelect.selectedIndex;
+            let secondOption = secondSelect.selectedIndex;
+            firstSelect.options[secondOption].selected = "selected";
+            firstSelect.previousElementSibling.placeholder = places[secondOption]
+            secondSelect.options[firstOption].selected = "selected";
+            secondSelect.previousElementSibling.placeholder = places[firstOption]
+            inputContainer.forEach((elem) => {
+                elem.querySelector('input').value = ''
+            });
+            if (document.querySelector('.inputContainer.js-oneInput select').value === '₽') {
+                availableFoundsBTC.style = 'display: none';
+                availableFoundsRub.style = 'display: block';
+            } else {
+                availableFoundsRub.style = 'display: none';
+                availableFoundsBTC.style = 'display: block';
             }
-            document.querySelectorAll("select").forEach((element) => {
+        }
 
+        let showMoreHistory = document.querySelector('.js-showMoreHistory');
+        let history = document.querySelectorAll('.table-history tr');
+
+        for (let i = 2; i < history.length; i++) {
+            history[i].style.display = 'none'
+        }
+
+        showMoreHistory.onclick = (e) => {
+            e.preventDefault();
+            let history = document.querySelectorAll('.table-history tr');
+
+            for (let i = 2; i < history.length; i++) {
+                history[i].style.display = 'table-row'
+            }
+        }
+
+        function refreshSelect(s) {
+            s.previousElementSibling.placeholder = places[s.selectedIndex];
+        }
+
+        document.querySelector('.inputContainer.js-oneInput select').addEventListener('change', function () {
+            if (this.value === '₽') {
+                availableFoundsBTC.style = 'display: none';
+                availableFoundsRub.style = 'display: block';
+            } else {
+                availableFoundsRub.style = 'display: none';
+                availableFoundsBTC.style = 'display: block';
+            }
+        })
+
+        document.querySelectorAll("select").forEach((element) => {
+            refreshSelect(element)
+            element.onchange = () => {
                 refreshSelect(element)
-                element.onchange = () => {
-                    console.log(element);
-                    refreshSelect(element)
-                }
+            }
+        })
+        const $crf_token = document.querySelector("input[name='csrfmiddlewaretoken']").value;
+        const urlExchange = "{% url 'exchange' %}"
+        let timeoutRequest = null;
+        let toCurrency;
+
+        inputContainer.forEach((elem) => {
+            elem.querySelector('input').addEventListener("input", event => {
+                event.preventDefault();
+                if (timeoutRequest) clearTimeout(timeoutRequest);
+                timeoutRequest = setTimeout(function () {
+                    let fromCurrency = elem.querySelector('select').value
+                    if (elem.classList.contains('js-oneInput')) {
+                        toCurrency = elem.parentElement.querySelector('.js-twoInput select').value
+                        elem.classList.add('from')
+                        elem.classList.remove('to')
+                        elem.parentElement.querySelector('.js-twoInput').classList.add('to')
+                        elem.parentElement.querySelector('.js-twoInput').classList.remove('from')
+                    } else {
+                        toCurrency = elem.parentElement.querySelector('.js-oneInput select').value
+                        elem.classList.add('from')
+                        elem.classList.remove('to')
+                        elem.parentElement.querySelector('.js-oneInput').classList.add('to')
+                        elem.parentElement.querySelector('.js-oneInput').classList.remove('from')
+                    }
+                    let value = elem.querySelector('input').value
+                    if (fromCurrency === toCurrency) {
+                        if (elem.classList.contains('js-oneInput')) {
+                            elem.parentElement.querySelector('.js-twoInput input').value = value
+                        } else {
+                            elem.parentElement.querySelector('.js-oneInput input').value = value
+                        }
+                    } else {
+                        const request = new Request(urlExchange, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': $crf_token,
+                            },
+                            body: JSON.stringify({
+                                'from_currency': fromCurrency,
+                                'to_currency': toCurrency,
+                                'value': value,
+                            })
+                        });
+                        if (value.length > 0) {
+                            fetch(request).then(response => response.json()).then(result => {
+                                if (elem.classList.contains('js-oneInput')) {
+                                    elem.parentElement.querySelector('.js-twoInput input').value = result.data
+                                } else {
+                                    elem.parentElement.querySelector('.js-oneInput input').value = result.data
+                                }
+                                document.querySelector('#from-currency').innerText = `${value} ${fromCurrency}`
+                                document.querySelector('#to-currency').innerText = `${result.data} ${toCurrency}`
+                            })
+                        } else {
+                            inputContainer.forEach((elem) => {
+                                elem.querySelector('input').value = ''
+                            })
+                        }
+                    }
+                }, 300)
             })
-        </script>
-        <script src="script.js"></script>
-    </body>
-</html>
+        })
+
+        document.querySelector('.js-sendRequestExchange').onclick = () => {
+
+            let value = document.querySelector('.inputContainer.from input').value
+            let fromCurrency = document.querySelector('.inputContainer.from select').value
+            let toCurrency = document.querySelector('.inputContainer.to select').value
+            const request_exchange = new Request(urlExchange, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': $crf_token,
+                },
+                body: JSON.stringify({
+                    'exchange_save': 'true',
+                    'from_currency': fromCurrency,
+                    'to_currency': toCurrency,
+                    'value': value,
+                })
+            });
+            if (fromCurrency === '₽' && value > max_rub || fromCurrency === '₿' && value > max_btc) {
+                document.querySelector('.submitModal .error-field').innerHTML = 'Введенная сумма больше доступной!!'
+            } else {
+                document.querySelector('.submitModal .error-field').innerHTML = ''
+                fetch(request_exchange).then(response => response.json()).then(result => {
+                    if (result.success === true) {
+                        document.querySelector('#from-currency').innerHTML = '0'
+                        document.querySelector('#to-currency').innerHTML = '0'
+                        inputContainer.forEach((elem) => {
+                            elem.querySelector('input').value = ''
+                        })
+                        document.querySelector('.js-finishModal').style.display = 'block'
+                        document.querySelector('.submitModal').style.display = 'none'
+                        if (result.history.type === 0) {
+                            document.querySelector('.table-history').insertAdjacentHTML(
+                                    "afterBegin",
+                                    `<tr>
+                            <td>${result.history.date}</td>
+                            <td>${result.history.rub_val} ₽</td>
+                            <td>${result.history.btc_val} ₿</td>
+                            <td>${result.history.commission} %</td>
+                            <td>${result.history.currency_usd} ₽</td>
+                        <tr>`
+                            )
+                        } else {
+                            document.querySelector('.table-history').insertAdjacentHTML(
+                                    "afterBegin",
+                                    `<tr>
+                            <td>${result.history.date}</td>
+                            <td>${result.history.btc_val} ₿</td>
+                            <td>${result.history.rub_val} ₽</td>
+                            <td>${result.history.commission} %</td>
+                            <td>${result.history.currency_usd} ₽</td>
+                        <tr>`
+                            )
+                        }
+                    } else {
+                       alert('Произошла какая та ошибка!!!')
+                    }
+
+                })
+            }
+        }
+
+    </script>
+{% endblock %}

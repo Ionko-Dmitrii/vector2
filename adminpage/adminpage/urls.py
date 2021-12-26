@@ -24,6 +24,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', (IndexPageView.as_view()), name='home'),
     path('account/', include('account.urls')),
+    path('vector/', include('vector.urls')),
 ]
 
 admin.site.site_url = 'https://t.me/vector_btc_bot'

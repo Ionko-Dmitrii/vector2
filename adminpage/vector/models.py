@@ -15,6 +15,7 @@ class admins(models.Model):
         null=True,
         blank=True
     )
+
     def __str__(self):
         return f'Админ {self.t_id}'
 
@@ -28,6 +29,13 @@ class exchange(models.Model):
     t_id = models.IntegerField(
         verbose_name='ID пользователя',
         null=True
+    )
+    user = models.ForeignKey(
+        to='account.User',
+        verbose_name='web user',
+        on_delete=models.CASCADE,
+        related_name='profile_exchange',
+        null=True,
     )
     create_dt = models.DateTimeField(
         verbose_name='Время создания',
@@ -103,8 +111,10 @@ class exchange(models.Model):
         verbose_name='Причина отказа',
         null=True
     )
+
     def __str__(self):
         return f'Обмен №{self.id}'
+
     class Meta:
         verbose_name = 'обмен'
         verbose_name_plural = 'обмен'
@@ -199,8 +209,10 @@ class replenish(models.Model):
         max_digits=16,
         decimal_places=2
     )
+
     def __str__(self):
         return f'Пополнение №{self.id}'
+
     class Meta:
         verbose_name = 'пополнение'
         verbose_name_plural = 'пополнение'
@@ -291,19 +303,27 @@ class withdraw(models.Model):
         verbose_name='Банк',
         null=True
     )
+
     def __str__(self):
         return f'Вывод №{self.id}'
+
     class Meta:
         verbose_name = 'вывод'
         verbose_name_plural = 'вывод'
         db_table = 'withdraw'
 
 
-
 class users(models.Model):
     t_id = models.IntegerField(
         verbose_name='ID пользователя',
         null=True
+    )
+    user = models.OneToOneField(
+        to='account.User',
+        verbose_name='web user',
+        on_delete=models.CASCADE,
+        related_name='profile',
+        null=True,
     )
     username = models.TextField(
         verbose_name='Username',
@@ -378,8 +398,10 @@ class users(models.Model):
         null=True,
         blank=True
     )
+
     def __str__(self):
         return f'Пользователь {self.t_id}'
+
     class Meta:
         verbose_name = 'пользователь'
         verbose_name_plural = 'пользователи'
@@ -403,8 +425,10 @@ class chat(models.Model):
         verbose_name='Текст',
         null=True
     )
+
     def __str__(self):
         return f'№{self.id}'
+
     class Meta:
         verbose_name = 'история действий'
         verbose_name_plural = 'история действий'
@@ -503,8 +527,10 @@ class codes(models.Model):
         max_digits=16,
         decimal_places=2
     )
+
     def __str__(self):
         return f'Коды №{self.id}'
+
     class Meta:
         verbose_name = 'код'
         verbose_name_plural = 'коды'
@@ -536,8 +562,10 @@ class support(models.Model):
         verbose_name='connect_id',
         null=True
     )
+
     def __str__(self):
         return f'№{self.id}'
+
     class Meta:
         verbose_name = 'support'
         verbose_name_plural = 'support'
@@ -551,10 +579,12 @@ class wallets(models.Model):
     )
     currency = models.TextField(
         verbose_name='Валюта',
-        null = True
+        null=True
     )
+
     def __str__(self):
         return f'Кошелек №{self.id}'
+
     class Meta:
         verbose_name = 'кошелек'
         verbose_name_plural = 'кошельки'
@@ -618,8 +648,10 @@ class transactions(models.Model):
         verbose_name='Txid',
         null=True
     )
+
     def __str__(self):
         return f'Транзакция №{self.id}'
+
     class Meta:
         verbose_name = 'транзакция'
         verbose_name_plural = 'транзакции'
@@ -671,6 +703,7 @@ class email_codes(models.Model):
         verbose_name='Время подтверждения',
         null=True
     )
+
     class Meta:
         verbose_name = 'код email'
         verbose_name_plural = 'коды email'

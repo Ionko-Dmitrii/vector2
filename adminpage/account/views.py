@@ -1,5 +1,4 @@
 from django.contrib.auth import login
-from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView, PasswordResetConfirmView,
 )
@@ -9,6 +8,7 @@ from django.views.generic import CreateView, TemplateView
 
 from account.forms import RegistrationForm, LoginForm, CustomPasswordResetForm
 from account.models import User
+from vector.models import users as Profile
 
 
 class UserLoginView(LoginView):
@@ -56,7 +56,7 @@ class RegistrationView(CreateView):
         )
         user.set_password(form.cleaned_data['password'])
         user.save()
-
+        Profile.objects.create(user=user, email=form.cleaned_data['email'])
         login(self.request, user)
 
         return JsonResponse(

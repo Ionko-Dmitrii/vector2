@@ -1,12 +1,11 @@
 let menuButtons = document.getElementsByClassName("menuButton");
-let loginButton = $(".loginButton");
+let loginButton = $(".js-openLoginModal");
 let signUpButton = $(".signUpButton");
 let loginModal = document.getElementsByClassName("loginModal")[0];
 let signUpModal = document.getElementsByClassName("signUpModal")[0];
 
 if (window.matchMedia("(max-width: 700px)").matches) {
     for (let menuButton of menuButtons) {
-        // console.log(menuButton);
         let navHeight = menuButton.nextElementSibling.offsetHeight;
         menuButton.nextElementSibling.style.maxHeight = 0;
         console.log(navHeight);
@@ -28,6 +27,11 @@ if (window.matchMedia("(max-width: 700px)").matches) {
     }
 }
 
+if(window.location.hash === '#open_login_modal' ){
+    loginModal.style.display = "block";
+    window.location.hash = '';
+}
+
 loginButton.on('click', function() {
     loginModal.style.display = "block";
     console.log('lll')
@@ -47,7 +51,6 @@ if (signUpButton) {
 
 signUpModal.onclick = () => {
     signUpModal.style.display = "none";
-    console.log('pppp')
 }
 signUpModal.children[0].onclick = (e) => {
     e.stopPropagation();

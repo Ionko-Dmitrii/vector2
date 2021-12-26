@@ -1,0 +1,130 @@
+main {
+  margin-top: 54px;
+  font-size: 16px;
+  padding: 0 20px 100px;
+  overflow: hidden;
+  color: #3D4B71;
+}
+
+main a {
+  color: #3D4B71;
+}
+
+main .sideMenu {
+  background: #F4F4F4;
+  width: calc(20% - 20px);
+  float: left;
+  border-radius: 4px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 15px;
+  margin-top: 100px;
+  text-align: left;
+  line-height: 50px;
+  list-style: none;
+}
+
+main .sideMenu ul {
+  line-height: 25px;
+  list-style: disc;
+  list-style-position: inside;
+  padding-left: 15px;
+}
+
+main .mainContent {
+  width: 80%;
+  float: right;
+}
+
+main .mainContent form {
+  background: #F4F4F4;
+  border-radius: 4px;
+  padding: 15px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+main .mainContent form .tableContainer {
+  overflow-x: scroll;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+main .mainContent form .tableContainer::-webkit-scrollbar {
+  display: none;
+}
+
+main .mainContent form table {
+  text-align: left;
+  line-height: 50px;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+main .mainContent form table tr {
+  border-bottom: 1px solid #E8E8E8;
+}
+
+main .mainContent form table tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+main .mainContent form table tr td, main .mainContent form table tr th {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 0 15px;
+  white-space: nowrap;
+}
+
+main .mainContent form table tr td a, main .mainContent form table tr th a {
+  border: 1px solid #ccc;
+  line-height: 30px;
+  border-radius: 15px;
+  display: inline-block;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+  padding: 0 10px;
+}
+
+main .mainContent form table tr td a:hover, main .mainContent form table tr th a:hover {
+  border: 1px solid #555;
+}
+
+main .mainContent form table tr th {
+  color: #888;
+  padding: 0 15px 15px;
+}
+
+main .mainContent form button {
+  padding: 0 50px;
+  line-height: 60px;
+  border-radius: 30px;
+  background-color: #F4F4F4;
+  margin: 25px 0;
+  border: 1px solid #C2C3C7;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+
+main .mainContent form button:hover {
+  border: 1px solid #888;
+  cursor: pointer;
+  background-color: #fff;
+}
+
+@media (max-width: 600px) {
+  main .sideMenu {
+    width: 100%;
+  }
+  main .mainContent {
+    width: 100%;
+  }
+  main .mainContent form {
+    padding: 15px 0;
+    border: 1px solid #E8E8E8;
+  }
+  main .mainContent form table th {
+    line-height: 20px;
+  }
+}
+/*# sourceMappingURL=history.css.map */

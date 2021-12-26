@@ -1,0 +1,105 @@
+main {
+  padding-top: 55px;
+}
+
+main .small {
+  font-size: 16px;
+}
+
+main .darkButton {
+  border-radius: 7px;
+  line-height: 50px;
+  display: inline-block;
+  padding: 0 20px;
+  background-color: #3D4B71;
+  color: white;
+  font-size: 16px;
+  margin-bottom: 100px;
+}
+
+main .faqBlock {
+  background-color: #F6F6F6;
+  padding: 50px;
+  width: 90%;
+  margin: auto;
+  border-radius: 14px;
+  margin-bottom: 100px;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+  overflow: hidden;
+}
+
+main .faqBlock:last-of-type {
+  width: 50%;
+  margin: 0;
+  margin-left: 5%;
+}
+
+main .faqBlock p {
+  font-size: 16px;
+  color: #454545;
+  text-align: left;
+  line-height: 30px;
+}
+
+main .faqBlock > p {
+  margin-bottom: 25px;
+}
+
+main .faqBlock > a {
+  border: 1px solid #3D4B71;
+  border-radius: 7px;
+  line-height: 50px;
+  display: inline-block;
+  padding: 0 20px;
+  color: #3D4B71;
+  font-size: 16px;
+}
+
+main .faqBlock > a:hover {
+  background: white;
+}
+
+main .faqBlock .leftSide {
+  width: 50%;
+  text-align: left;
+  float: left;
+}
+
+main .faqBlock ul {
+  width: 50%;
+  float: left;
+  font-size: 16px;
+  text-align: left;
+}
+
+main .faqBlock ul li {
+  overflow: hidden;
+  color: #3D4B71;
+  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+main .faqBlock ul p {
+  float: left;
+  line-height: 24px;
+  font-weight: normal;
+}
+
+main .faqBlock ul img {
+  display: block;
+  float: left;
+  height: 24px;
+  width: 24px;
+  margin-right: 20px;
+}
+
+@media (max-width: 600px) {
+  main .faqBlock:last-child {
+    width: 90%;
+  }
+  main .faqBlock:last-child .leftSide, main .faqBlock:last-child ul {
+    width: 100%;
+  }
+}
+/*# sourceMappingURL=faq.css.map */
