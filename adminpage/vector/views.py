@@ -47,6 +47,7 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body.decode("utf-8"))
         value_with_commission = 0
+        commission_value = 0
         one_dollar = Decimal(get_latest_currency_price('USD').value)
         one_cripto = Decimal(get_latest_crypto_price_usd('bitcoin')[0]['close'])
         commission_exchange = commission.objects.first().exchange
@@ -67,7 +68,6 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
             btc_val = 0
             rub_val = 0
             type_exchange = 0
-            commission_value = 0
             user = users.objects.get(email=request.user.email)
             create_dt = datetime.datetime.now()
             if data.get('from_currency') == '₽':
