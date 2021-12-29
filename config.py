@@ -2,22 +2,25 @@ from enum import Enum
 import redis
 
 
-token = '1799106051:AAHER6itgZ_472VgPHLf4PKmtYCBLa5vF2g'
-token_admin = '1758655220:AAH9lVFBkTdf-qQ038hz40P_GBqPlIQrKwc'
-token_support = '1860401579:AAGI74UjIgOkA-ZGNKIovlKAPCL7B63dgsg'
+# token = '1799106051:AAHER6itgZ_472VgPHLf4PKmtYCBLa5vF2g'
+token = '5094850730:AAFK7VBqxBdsm1QAqgZt9ooSDjIwRko7m3w'
+# token_admin = '1758655220:AAH9lVFBkTdf-qQ038hz40P_GBqPlIQrKwc'
+token_admin = '5053612158:AAEN6F1RYrY6vJvLrCX3aNIxd_XMREj01sA'
+# token_support = '1860401579:AAGI74UjIgOkA-ZGNKIovlKAPCL7B63dgsg'
+token_support = '5053612158:AAEN6F1RYrY6vJvLrCX3aNIxd_XMREj01sA'
 
-host_ip = '185.139.68.70'
-host_port = 443  # 443, 80, 88, 8443
-host_port_admin = 88
+host_ip = '127.0.0.1'
+host_port = 8000  # 443, 80, 88, 8443
+host_port_admin = 8000
 
 # admin_host_port = 8443
 
 ssl_cert = 'webhook_cert.pem'
 ssl_priv = 'webhook_pkey.pem'
 
-db_user = 'change'
-db_pass = 'NPGBLpXH'
-db_host = '185.139.68.70'  # '91.122.48.176:3306'
+db_user = 'postgres'
+db_pass = 'postgres'
+db_host = '127.0.0.1'  # '91.122.48.176:3306'
 db_name = 'changer'
 
 pool = redis.ConnectionPool(host='localhost', port=6379, db=0)

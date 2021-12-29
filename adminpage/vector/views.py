@@ -3,15 +3,19 @@ import json
 
 from decimal import Decimal
 
+import telebot
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
-from vector.models import users, commission, exchange
+import buttons
+from vector.models import users, commission, exchange, admins
 from vector.service import (
-    get_latest_currency_price,  get_latest_crypto_price_usd
+    get_latest_currency_price, get_latest_crypto_price_usd
 )
+
+bot_admin = telebot.TeleBot('5053612158:AAEN6F1RYrY6vJvLrCX3aNIxd_XMREj01sA')
 
 
 class IndexPageView(TemplateView):
@@ -27,9 +31,10 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
         context['user_profile'] = users.objects.get(user=self.request.user)
         one_dollar_in_rub = Decimal(get_latest_currency_price('USD').value)
         one_btc_in_us = round(
-            Decimal(get_latest_crypto_price_usd('bitcoin')[0]['close']), ndigits=2
+            Decimal(get_latest_crypto_price_usd('bitcoin')[0]['close']),
+            ndigits=2
         )
-        one_btc_in_rub = round((one_dollar_in_rub * one_btc_in_us),  ndigits=2)
+        one_btc_in_rub = round((one_dollar_in_rub * one_btc_in_us), ndigits=2)
         one_rub_in_us = round((1 / one_dollar_in_rub), ndigits=4)
         context['currency'] = {
             'one_dollar_in_rub': one_dollar_in_rub,
@@ -53,13 +58,17 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
         commission_exchange = commission.objects.first().exchange
         current_val = Decimal(data.get('value'))
         if data.get('from_currency') == '₽':
-            commission_value = round(current_val / 100 * commission_exchange, ndigits=2)
+            commission_value = round(current_val / 100 * commission_exchange,
+                                     ndigits=2)
             value_with_commission = round(
-                (1 / one_cripto * ((current_val - commission_value) / one_dollar)), ndigits=8
+                (1 / one_cripto * (
+                            (current_val - commission_value) / one_dollar)),
+                ndigits=8
             )
         elif data.get('from_currency') == '₿':
             value = one_cripto * current_val * one_dollar
-            commission_value = round(value / 100 * commission_exchange, ndigits=2)
+            commission_value = round(value / 100 * commission_exchange,
+                                     ndigits=2)
             value_with_commission = round((value - commission_value), ndigits=2)
 
         if data.get('exchange_save'):
@@ -71,56 +80,67 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
             user = users.objects.get(email=request.user.email)
             create_dt = datetime.datetime.now()
             if data.get('from_currency') == '₽':
-                type_exchange = 0
+                type_exchange = 1
                 btc_val = value_with_commission
                 rub_val = current_val
                 user_rub = user.rub_value - rub_val
                 user_btc = user.btc_value + btc_val
             elif data.get('from_currency') == '₿':
-                type_exchange = 1
+                type_exchange = 0
                 btc_val = current_val
                 rub_val = value_with_commission
                 user_btc = user.btc_value - btc_val
                 user_rub = user.rub_value + rub_val
             try:
-                with transaction.atomic():
-                    users.objects.update(
-                        btc_value=user_btc,
-                        rub_value=user_rub,
-                    )
-                    exchange.objects.create(
-                        user=request.user,
-                        create_dt=create_dt,
-                        btc_value=btc_val,
-                        rub_value=rub_val,
-                        commission=commission_value,
-                        currency_usd=one_dollar,
-                        currency_btc=round((one_dollar * one_cripto), ndigits=2),
-                        end_dt=datetime.datetime.now(),
-                        balance_btc_was=user.btc_value,
-                        balance_rub_was=user.rub_value,
-                        balance_btc=user_btc,
-                        balance_rub=user_rub,
-                        type=type_exchange
-                    )
+                obj = exchange(
+                    user=request.user,
+                    create_dt=create_dt,
+                    btc_value=btc_val,
+                    rub_value=rub_val,
+                    commission=commission_value,
+                    currency_usd=one_dollar,
+                    currency_btc=round((one_dollar * one_cripto), ndigits=2),
+                    end_dt=datetime.datetime.now(),
+                    balance_btc_was=user.btc_value,
+                    balance_rub_was=user.rub_value,
+                    balance_btc=user_btc,
+                    balance_rub=user_rub,
+                    type=type_exchange,
+                    status=1,
+                    t_id=user.t_id,
+                )
 
-                    return JsonResponse(dict(
-                        success=True, message='success',
-                        history={
-                            'date': create_dt.strftime("%d.%m.%Y %H:%M"),
-                            'btc_val': btc_val,
-                            'rub_val': rub_val,
-                            'type': type_exchange,
-                            'commission': commission_value,
-                            'currency_usd': one_dollar,
-                        }
-                    ), status=200)
+                obj.save()
+
+                admin_list = admins.objects.all()
+                for admin in admin_list:
+                    admin_t_id = admin.t_id
+                    if type_exchange == 1:
+                        bot_admin.send_message(
+                            admin_t_id,
+                            f'🔁 Заявка №{obj.id}\n на продажу {rub_val} rub '
+                            f'за {btc_val} btc\nID: {user.t_id} '
+                            f'username: @{user.username}\n Данные пользователя:\n{user.fio}\n{user.email}',
+                            reply_markup=buttons.get_exchange_admin_approve_keyboard(obj.id))
+                    elif type_exchange == 0:
+                        bot_admin.send_message(
+                            admin_t_id,
+                            f'🔁 Заявка №{obj.id}\n на продажу {btc_val} btc '
+                            f'за {rub_val} rub\nID: {user.t_id} '
+                            f'username: @{user.username}\nДанные пользователя:\n{user.fio}\n{user.email}',
+                            reply_markup=buttons.get_exchange_admin_approve_keyboard(
+                                obj.id))
+
+                return JsonResponse(dict(
+                    success=True, message='success'
+                ), status=200)
+
             except Exception:
                 return JsonResponse(dict(
                     success=False, message='error',
                 ), status=400)
 
         return JsonResponse(dict(
-                success=True, message='success', data=value_with_commission,
-                currency=current_val,
-            ), status=200)
+            success=True, message='success', data=value_with_commission,
+            currency=current_val,
+        ), status=200)

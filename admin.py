@@ -1,18 +1,24 @@
 # coding=utf-8
 import datetime
 import logging
+import os
 
 import cherrypy
 import redis
 import telebot
+from django.conf import settings
 
 import buttons
 import config
 import dbworker
+from django.core.mail import send_mail
+
 from decimal import *
 from decimal import Decimal
 
 # from memory_profiler import profile
+from send_email_code import send_email_code
+from send_email_notification import send_email_notification
 
 WEBHOOK_HOST = config.host_ip
 WEBHOOK_PORT = config.host_port_admin
@@ -76,7 +82,7 @@ def handle_start(message):
         logging.exception(e)
 
 
-@bot_admin.message_handler(commands = ['disconnect'])
+@bot_admin.message_handler(commands=['disconnect'])
 def message(message):
     try:
         connect_id = message.text.replace('/disconnect ', '')
@@ -95,56 +101,70 @@ def message(message):
             else:
                 bot_admin.send_message(message.chat.id, f'Админ уже отключился')
         else:
-            bot_admin.send_message(message.chat.id, f'Такого id подключения нет')
+            bot_admin.send_message(message.chat.id,
+                                   f'Такого id подключения нет')
     except Exception as error:
         pass
 
-@bot_admin.message_handler(func=lambda message: "Изменить комиссию" == message.text)
+
+@bot_admin.message_handler(
+    func=lambda message: "Изменить комиссию" == message.text)
 def handle_change_commission(message):
     try:
-        bot_admin.send_message(chat_id=message.chat.id, text='Выберите какую коммиссию вы хотите изменить',
+        bot_admin.send_message(chat_id=message.chat.id,
+                               text='Выберите какую коммиссию вы хотите изменить',
                                reply_markup=buttons.get_change_commission_keyboard1())
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'change_commission_replenish' == call.data)
+@bot_admin.callback_query_handler(
+    func=lambda call: 'change_commission_replenish' == call.data)
 def callback(call):
     try:
-        bot_admin.edit_message_text(message_id=call.message.message_id, chat_id=call.message.chat.id,
+        bot_admin.edit_message_text(message_id=call.message.message_id,
+                                    chat_id=call.message.chat.id,
                                     text='Изменить комиссию на пополнение',
                                     reply_markup=buttons.get_change_commission_keyboard())
-        dbworker.set_state(call.message.chat.id, config.State.CHANGE_COMMISSION_REPLENISH.value)
+        dbworker.set_state(call.message.chat.id,
+                           config.State.CHANGE_COMMISSION_REPLENISH.value)
 
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'change_commission_exchange' == call.data)
+@bot_admin.callback_query_handler(
+    func=lambda call: 'change_commission_exchange' == call.data)
 def callback(call):
     try:
-        bot_admin.edit_message_text(message_id=call.message.message_id, chat_id=call.message.chat.id,
+        bot_admin.edit_message_text(message_id=call.message.message_id,
+                                    chat_id=call.message.chat.id,
                                     text='Изменить комиссию на обмен',
                                     reply_markup=buttons.get_change_commission_keyboard())
-        dbworker.set_state(call.message.chat.id, config.State.CHANGE_COMMISSION_EXCHANGE.value)
+        dbworker.set_state(call.message.chat.id,
+                           config.State.CHANGE_COMMISSION_EXCHANGE.value)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'change_commission_withdraw' == call.data)
+@bot_admin.callback_query_handler(
+    func=lambda call: 'change_commission_withdraw' == call.data)
 def callback(call):
     try:
-        bot_admin.edit_message_text(message_id=call.message.message_id, chat_id=call.message.chat.id,
+        bot_admin.edit_message_text(message_id=call.message.message_id,
+                                    chat_id=call.message.chat.id,
                                     text='Изменить комиссию на вывод',
                                     reply_markup=buttons.get_change_commission_keyboard())
-        dbworker.set_state(call.message.chat.id, config.State.CHANGE_COMMISSION_WITHDRAW.value)
+        dbworker.set_state(call.message.chat.id,
+                           config.State.CHANGE_COMMISSION_WITHDRAW.value)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'change_commission' == call.data[4:] and
-                                                    dbworker.get_state(
-                                                        call.message.chat.id) == config.State.CHANGE_COMMISSION_REPLENISH.value)
+@bot_admin.callback_query_handler(
+    func=lambda call: 'change_commission' == call.data[4:] and
+                      dbworker.get_state(
+                          call.message.chat.id) == config.State.CHANGE_COMMISSION_REPLENISH.value)
 def callback(call):
     try:
 
@@ -155,9 +175,10 @@ def callback(call):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'change_commission' == call.data[4:] and
-                                                    dbworker.get_state(
-                                                        call.message.chat.id) == config.State.CHANGE_COMMISSION_EXCHANGE.value)
+@bot_admin.callback_query_handler(
+    func=lambda call: 'change_commission' == call.data[4:] and
+                      dbworker.get_state(
+                          call.message.chat.id) == config.State.CHANGE_COMMISSION_EXCHANGE.value)
 def callback(call):
     try:
         commission = float(call.data[:3])
@@ -167,9 +188,10 @@ def callback(call):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'change_commission' == call.data[4:] and
-                                                    dbworker.get_state(
-                                                        call.message.chat.id) == config.State.CHANGE_COMMISSION_WITHDRAW.value)
+@bot_admin.callback_query_handler(
+    func=lambda call: 'change_commission' == call.data[4:] and
+                      dbworker.get_state(
+                          call.message.chat.id) == config.State.CHANGE_COMMISSION_WITHDRAW.value)
 def callback(call):
     try:
         commission = float(call.data[:3])
@@ -179,10 +201,12 @@ def callback(call):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: call.data == 'back_to_change_commission')
+@bot_admin.callback_query_handler(
+    func=lambda call: call.data == 'back_to_change_commission')
 def callback(call):
     try:
-        bot_admin.edit_message_text(message_id=call.message.message_id, chat_id=call.message.chat.id,
+        bot_admin.edit_message_text(message_id=call.message.message_id,
+                                    chat_id=call.message.chat.id,
                                     text='Выберите какую коммиссию вы хотите изменить',
                                     reply_markup=buttons.get_change_commission_keyboard1())
     except telebot.apihelper.ApiException as e:
@@ -217,14 +241,16 @@ def handle_delete(message):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'withdraw_admin_decline' == call.data[:22])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'withdraw_admin_decline' == call.data[:22])
 def callback(call):
     try:
         dbworker.set_state(call.message.chat.id, config.State.ZERO.value)
         withdraw_id = call.data[22:]
         status = dbworker.get_withdraw_status(withdraw_id)
         if status != 1:
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, '')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id, '')
             bot_admin.answer_callback_query(call.id, 'Заявка уже обработана')
             return
         withdraw_currency = dbworker.get_withdraw_currency(withdraw_id)
@@ -235,12 +261,14 @@ def callback(call):
         bot_admin.send_message(call.message.chat.id,
                                f'❌ Вы собираетесь отказать по заявку №{withdraw_id} на вывод {withdraw_value[0]} '
                                f'{withdraw_currency}',
-                               reply_markup=buttons.get_withdraw_admin_decline_second_keyboard(withdraw_id))
+                               reply_markup=buttons.get_withdraw_admin_decline_second_keyboard(
+                                   withdraw_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_withdraw_admin_back' == call.data)
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_withdraw_admin_back' == call.data)
 def callback(call):
     try:
         bot_admin.delete_message(call.from_user.id,
@@ -249,7 +277,8 @@ def callback(call):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_exchange_admin_back' == call.data[:26])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_exchange_admin_back' == call.data[:26])
 def callback(call):
     try:
         bot_admin.delete_message(call.from_user.id,
@@ -258,7 +287,8 @@ def callback(call):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_withdraw_admin_decline' == call.data[:29])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_withdraw_admin_decline' == call.data[:29])
 def callback(call):
     try:
         bot_admin.delete_message(call.from_user.id,
@@ -266,21 +296,25 @@ def callback(call):
         withdraw_id = call.data[29:]
         status = dbworker.get_withdraw_status(withdraw_id)
         if status != 1:
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, '')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id, '')
             bot_admin.answer_callback_query(call.id, 'Заявка уже обработана')
             return
         withdraw_decline[call.message.chat.id] = withdraw_id
         dbworker.set_withdraw_end_dt(withdraw_id)
-        dbworker.set_state(call.message.chat.id, config.State.WAITING_WITHDRAW_DECLINE_REASON.value)
+        dbworker.set_state(call.message.chat.id,
+                           config.State.WAITING_WITHDRAW_DECLINE_REASON.value)
         bot_admin.send_message(call.message.chat.id,
                                f'Укажите причину отказа',
-                               reply_markup=buttons.get_withdraw_admin_decline_second_reason_keyboard(withdraw_id))
+                               reply_markup=buttons.get_withdraw_admin_decline_second_reason_keyboard(
+                                   withdraw_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
 @bot_admin.message_handler(
-    func=lambda message: dbworker.get_state(message.chat.id) == config.State.WAITING_WITHDRAW_DECLINE_REASON.value)
+    func=lambda message: dbworker.get_state(
+        message.chat.id) == config.State.WAITING_WITHDRAW_DECLINE_REASON.value)
 def handle(message):
     try:
         answer = message.text
@@ -297,21 +331,24 @@ def handle(message):
         if withdraw_currency == 'btc':
             withdraw_value = dbworker.get_withdraw_amaunt_btc(withdraw_id)
             balance_was = dbworker.get_withdraw_btc_balance_was(withdraw_id)
-            dbworker.user_btc_plus(withdraw_user, withdraw_value[0] + commission)
+            dbworker.user_btc_plus(withdraw_user,
+                                   withdraw_value[0] + commission)
             balance = dbworker.get_btc_balance(message.chat.id)[0]
             to_address = dbworker.get_withdraw_btc_payment(withdraw_id)
             comm = f'{commission:.8f} BTC'
         else:
             withdraw_value = dbworker.get_withdraw_amaunt_rub(withdraw_id)
             balance_was = dbworker.get_withdraw_rub_balance_was(withdraw_id)
-            dbworker.user_rub_plus(withdraw_user, withdraw_value[0] + commission)
+            dbworker.user_rub_plus(withdraw_user,
+                                   withdraw_value[0] + commission)
             balance = dbworker.get_rub_balance(message.chat.id)[0]
             to_address = dbworker.get_withdraw_rub_payment(withdraw_id)
             comm = f'{commission:.2f} RUB'
         dt = dbworker.get_withdraw_create_dt(withdraw_id)
 
         dbworker.add_transaction_withdraw(message.chat.id, dt, '0',
-                                          f'{balance_was} {withdraw_currency}', f'{balance} {withdraw_currency}',
+                                          f'{balance_was} {withdraw_currency}',
+                                          f'{balance} {withdraw_currency}',
                                           comm, 'Отказ', answer, to_address)
         dbworker.set_withdraw_answer(withdraw_id, answer)
         dbworker.set_withdraw_status(withdraw_id, '3')
@@ -326,13 +363,15 @@ def handle(message):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'exchange_admin_decline' == call.data[:22])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'exchange_admin_decline' == call.data[:22])
 def callback(call):
     try:
         exchange_id = call.data[22:]
         exchange_status = dbworker.get_exchange_status(exchange_id)
         if exchange_status != 1:
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, '')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id, '')
             bot_admin.answer_callback_query(call.id, 'Заявка уже обработана')
             return
         dbworker.set_state(call.message.chat.id, config.State.ZERO.value)
@@ -348,29 +387,34 @@ def callback(call):
         bot_admin.send_message(call.message.chat.id,
                                f'❌ Вы собираетесь отказать по заявке №{exchange_id} на обмен {exchange_value} '
                                f'{exchange_currency}',
-                               reply_markup=buttons.get_exchange_admin_decline_second_keyboard(exchange_id))
+                               reply_markup=buttons.get_exchange_admin_decline_second_keyboard(
+                                   exchange_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_exchange_admin_decline' == call.data[:29])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_exchange_admin_decline' == call.data[:29])
 def callback(call):
     try:
         bot_admin.delete_message(call.from_user.id,
                                  call.message.message_id)
         exchange_id = call.data[29:]
         exchange_decline[call.message.chat.id] = exchange_id
-        dbworker.set_state(call.message.chat.id, config.State.WAITING_EXCHANGE_DECLINE_REASON.value)
+        dbworker.set_state(call.message.chat.id,
+                           config.State.WAITING_EXCHANGE_DECLINE_REASON.value)
         # bot_admin.send_message(call.message.chat.id, f"{exchange_decline[call.message.chat.id]}")
         bot_admin.send_message(call.message.chat.id,
                                f'Укажите причину отказа обмена',
-                               reply_markup=buttons.get_exchange_admin_decline_second_reason_keyboard(exchange_id))
+                               reply_markup=buttons.get_exchange_admin_decline_second_reason_keyboard(
+                                   exchange_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
 @bot_admin.message_handler(
-    func=lambda message: dbworker.get_state(message.chat.id) == config.State.WAITING_EXCHANGE_DECLINE_REASON.value)
+    func=lambda message: dbworker.get_state(
+        message.chat.id) == config.State.WAITING_EXCHANGE_DECLINE_REASON.value)
 def handle(message):
     try:
         bot_admin.delete_message(message.chat.id,
@@ -391,41 +435,64 @@ def handle(message):
 
         if exchange_type == 'sell':
             exchange_currency = 'rub'
-            exchange_value = dbworker.get_exchange_amaunt_btc(exchange_id)
+            exchange_value = dbworker.get_exchange_amaunt_rub(exchange_id)
         else:
             exchange_currency = 'btc'
-            exchange_value = dbworker.get_exchange_amaunt_rub(exchange_id)
+            exchange_value = dbworker.get_exchange_amaunt_btc(exchange_id)
 
         for admin in current_admins:
             admin_t_id = admin[0]
             bot_admin.send_message(admin_t_id,
                                    f'⬆️❌ Администратор {message.chat.id} отклонил заявку №{exchange_id} '
                                    f'на обмен {exchange_value} {exchange_currency}.Причина: {message.text}')
+
+        heading = 'Уведомление о обмене валюты!'
+        html = f"""
+                    <html>
+                      <head></head>
+                      <body>
+                        <h1>Уведомление о обмене валюты!</h1>
+                        <h2>Администратор отклонил заявку на обмен:
+                         {exchange_value} {exchange_currency}</h2>
+                        <h2>Причина: </h2>
+                        <h3>{message.text}</h3>
+                      </body>
+                    </html>
+                """
+        send_email_notification(
+            dbworker.get_email(message.from_user.id), heading, html
+        )
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'withdraw_admin_approve' == call.data[:22])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'withdraw_admin_approve' == call.data[:22])
 def callback(call):
     try:
         withdraw_id = call.data[22:]
         if dbworker.get_withdraw_status(withdraw_id) != 1:
-            bot_admin.answer_callback_query(call.id, 'Заявка уже была обработана')
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, '')
+            bot_admin.answer_callback_query(call.id,
+                                            'Заявка уже была обработана')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id, '')
         else:
             withdraw_currency = dbworker.get_withdraw_currency(withdraw_id)
             if withdraw_currency == 'btc':
                 withdraw_value = dbworker.get_withdraw_amaunt_btc(withdraw_id)
             else:
                 withdraw_value = dbworker.get_withdraw_amaunt_rub(withdraw_id)
-            bot_admin.send_message(call.message.chat.id, f'✅ Вы собираетесь одобрить заявку №{withdraw_id} на вывод '
-                                                         f'{withdraw_value[0]} {withdraw_currency}',
-                                   reply_markup=buttons.get_withdraw_admin_approve_second_keyboard(withdraw_id))
+            bot_admin.send_message(call.message.chat.id,
+                                   f'✅ Вы собираетесь одобрить заявку №{withdraw_id} на вывод '
+                                   f'{withdraw_value[0]} {withdraw_currency}',
+                                   reply_markup=buttons.get_withdraw_admin_approve_second_keyboard(
+                                       withdraw_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_withdraw_admin_approve' == call.data[:29])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_withdraw_admin_approve' == call.data[:29])
 def callback(call):
     bot_admin.delete_message(call.from_user.id,
                              call.message.message_id)
@@ -433,8 +500,10 @@ def callback(call):
     try:
         withdraw_id = call.data[29:]
         if dbworker.get_withdraw_status(withdraw_id) != 1:
-            bot_admin.delete_message(call.message.chat.id, call.message.message_id)
-            bot_admin.answer_callback_query(call.id, 'Заявка уже была обработана')
+            bot_admin.delete_message(call.message.chat.id,
+                                     call.message.message_id)
+            bot_admin.answer_callback_query(call.id,
+                                            'Заявка уже была обработана')
         else:
             withdraw_user = dbworker.get_withdraw_user(withdraw_id)
             withdraw_currency = dbworker.get_withdraw_currency(withdraw_id)
@@ -456,7 +525,6 @@ def callback(call):
     try:
         dt = dbworker.get_withdraw_create_dt(withdraw_id)
 
-
         if withdraw_currency == 'btc':
             pay_system = 'кошелек'
             to_address = dbworker.get_withdraw_btc_payment(withdraw_id)
@@ -469,9 +537,12 @@ def callback(call):
             balance = dbworker.get_rub_balance(withdraw_user)[0]
             to_address = dbworker.get_withdraw_rub_payment(withdraw_id)
             comm = f'{dbworker.get_withdraw_commission(withdraw_id):.2f} RUB'
-        dbworker.add_transaction_withdraw(call.message.chat.id, dt, f'{withdraw_value[0]} {withdraw_currency}',
-                                          f'{balance_was} {withdraw_currency}', f'{balance} {withdraw_currency}',
-                                          f'{comm}', 'Выполнено', '', to_address)
+        dbworker.add_transaction_withdraw(call.message.chat.id, dt,
+                                          f'{withdraw_value[0]} {withdraw_currency}',
+                                          f'{balance_was} {withdraw_currency}',
+                                          f'{balance} {withdraw_currency}',
+                                          f'{comm}', 'Выполнено', '',
+                                          to_address)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
     dbworker.set_withdraw_end_dt(withdraw_id)
@@ -479,9 +550,10 @@ def callback(call):
     for admin in current_admins:
         try:
             admin_t_id = admin[0]
-            bot_admin.send_message(admin_t_id, f'✅ Администратор {call.message.chat.id} одобрил заявку №{withdraw_id} '
-                                               f'на вывод {withdraw_value[0]} {withdraw_currency} '
-                                               f'На {pay_system}: {to_address} Id пользователя: {withdraw_user}')
+            bot_admin.send_message(admin_t_id,
+                                   f'✅ Администратор {call.message.chat.id} одобрил заявку №{withdraw_id} '
+                                   f'на вывод {withdraw_value[0]} {withdraw_currency} '
+                                   f'На {pay_system}: {to_address} Id пользователя: {withdraw_user}')
         except telebot.apihelper.ApiException as e:
             logging.exception(e)
             continue
@@ -491,16 +563,19 @@ def callback(call):
         dbworker.set_withdraw_status(withdraw_id, '2')
         dbworker.set_withdraw_btc_balance(withdraw_id, withdraw_user)
         dbworker.set_withdraw_rub_balance(withdraw_id, withdraw_user)
-        bot.send_message(withdraw_user, f'Вывод совершен:\nВаш баланс:\n{user_btc_value[0]:.8f} '
-                                        f'Bitcoin\n{user_rub_value[0]} Рублей')
+        bot.send_message(withdraw_user,
+                         f'Вывод совершен:\nВаш баланс:\n{user_btc_value[0]:.8f} '
+                         f'Bitcoin\n{user_rub_value[0]} Рублей')
         if withdraw_currency == 'btc':
             bot.send_message(withdraw_user, f'🔁✅ Введите номер Txid')
-            dbworker.set_state(message.chat.id, config.State.WITHDRAW_TXID_ENTER)
+            dbworker.set_state(message.chat.id,
+                               config.State.WITHDRAW_TXID_ENTER)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.message_handler(func=lambda m: dbworker.get_state(m.chat.id) == config.State.REPLENISH_TXID_ENTER.value)
+@bot_admin.message_handler(func=lambda m: dbworker.get_state(
+    m.chat.id) == config.State.REPLENISH_TXID_ENTER.value)
 def handle(message):
     try:
         dbworker.set_state(message.chat.id, config.State.ZERO.value)
@@ -515,13 +590,17 @@ def handle(message):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'exchange_admin_approve' == call.data[:22])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'exchange_admin_approve' == call.data[:22])
 def callback(call):
     try:
         exchange_id = call.data[22:]
         if dbworker.get_exchange_status(exchange_id) != 1:
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup='')
-            bot_admin.answer_callback_query(call.id, 'Заявка уже была обработана')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id,
+                                                reply_markup='')
+            bot_admin.answer_callback_query(call.id,
+                                            'Заявка уже была обработана')
         else:
             exchange_type = dbworker.get_exchange_type(exchange_id)
             exchange_amount_btc = dbworker.get_exchange_amaunt_btc(exchange_id)
@@ -531,15 +610,18 @@ def callback(call):
                 type_text = 'покупку'
             else:
                 type_text = 'продажу'
-            bot_admin.send_message(call.message.chat.id, f'✅ Вы собираетесь одобрить заявку №{exchange_id} '
-                                                         f'на {type_text} '
-                                                         f'{exchange_amount_btc} btc за {exchange_amount_rub} rub',
-                                   reply_markup=buttons.get_exchange_admin_approve_second_keyboard(exchange_id))
+            bot_admin.send_message(call.message.chat.id,
+                                   f'✅ Вы собираетесь одобрить заявку №{exchange_id} '
+                                   f'на {type_text} '
+                                   f'{exchange_amount_btc} btc за {exchange_amount_rub} rub',
+                                   reply_markup=buttons.get_exchange_admin_approve_second_keyboard(
+                                       exchange_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_exchange_admin_approve' == call.data[:29])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_exchange_admin_approve' == call.data[:29])
 def callback(call):
     bot_admin.delete_message(call.from_user.id,
                              call.message.message_id)
@@ -552,8 +634,11 @@ def callback(call):
 
         exchange_id = call.data[29:]
         if dbworker.get_exchange_status(exchange_id) != 1:
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, reply_markup='')
-            bot_admin.answer_callback_query(call.id, 'Заявка уже была обработана')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id,
+                                                reply_markup='')
+            bot_admin.answer_callback_query(call.id,
+                                            'Заявка уже была обработана')
         else:
             exchange_user = dbworker.get_exchange_user(exchange_id)
             exchange_type = dbworker.get_exchange_type(exchange_id)
@@ -565,18 +650,25 @@ def callback(call):
             if exchange_type == 'buy':
                 exchange_currency = 'btc'
                 exchange_price_currency = 'rub'
-                exchange_value = exchange_amount_btc = dbworker.get_exchange_amaunt_btc(exchange_id)
-                exchange_price = exchange_amount_rub = dbworker.get_exchange_amaunt_rub(exchange_id)
-                dbworker.user_btc_plus(call.message.chat.id, exchange_amount_btc)
-                dbworker.user_rub_minus(call.message.chat.id, exchange_amount_rub)
+                exchange_value = exchange_amount_btc = dbworker.get_exchange_amaunt_btc(
+                    exchange_id)
+                exchange_price = exchange_amount_rub = dbworker.get_exchange_amaunt_rub(
+                    exchange_id)
+                dbworker.user_btc_plus(call.message.chat.id,
+                                       exchange_amount_btc)
+                dbworker.user_rub_minus(call.message.chat.id,
+                                        exchange_amount_rub)
             else:
                 exchange_currency = 'rub'
                 exchange_price_currency = 'btc'
-                exchange_price = exchange_amount_btc = dbworker.get_exchange_amaunt_btc(exchange_id)
-                exchange_value = exchange_amount_rub = dbworker.get_exchange_amaunt_rub(exchange_id)
-                dbworker.user_btc_minus(call.message.chat.id, exchange_amount_btc)
-                dbworker.user_rub_plus(call.message.chat.id, exchange_amount_rub)
-
+                exchange_price = exchange_amount_btc = dbworker.get_exchange_amaunt_btc(
+                    exchange_id)
+                exchange_value = exchange_amount_rub = dbworker.get_exchange_amaunt_rub(
+                    exchange_id)
+                dbworker.user_btc_minus(call.message.chat.id,
+                                        exchange_amount_btc)
+                dbworker.user_rub_plus(call.message.chat.id,
+                                       exchange_amount_rub)
 
             current_admins = dbworker.get_admins()
     except telebot.apihelper.ApiException as e:
@@ -585,11 +677,12 @@ def callback(call):
     for admin in current_admins:
         try:
             admin_t_id = admin[0]
-            bot_admin.send_message(admin_t_id, f'🔁✅ Администратор {call.message.chat.id} одобрил заявку\n'
-                                               f'Заявку№{exchange_id} '
-                                               f'на покупку {exchange_value} {exchange_currency} за {exchange_price}'
-                                               f'{exchange_price_currency}\n'
-                                               f'Id пользователя: {exchange_user}')
+            bot_admin.send_message(admin_t_id,
+                                   f'🔁✅ Администратор {call.message.chat.id} одобрил заявку\n'
+                                   f'Заявку№{exchange_id} '
+                                   f'на покупку {exchange_value} {exchange_currency} за {exchange_price}'
+                                   f'{exchange_price_currency}\n'
+                                   f'Id пользователя: {exchange_user}')
         except telebot.apihelper.ApiException as e:
             logging.exception(e)
             continue
@@ -630,28 +723,52 @@ def callback(call):
                                         f'Ваш баланс:\n'
                                         f'{user_btc_value[0]:.8f} Bitcoin\n'
                                         f'{user_rub_value[0]} Рублей')
+
+        heading = 'Уведомление о обмене валюты!'
+        html = f"""
+            <html>
+              <head></head>
+              <body>
+                <h1>Уведомление о обмене валюты!</h1>
+                <h2>Средства отправлены:</h2>
+                <h2>Ваш баланс:</h2>
+                <h3>{user_btc_value[0]:.8f} Bitcoin</h3>
+                <h3>{user_rub_value[0]} Рублей</h3>
+              </body>
+            </html>
+        """
+        send_email_notification(
+            dbworker.get_email(call.from_user.id), heading, html
+        )
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'replenish_admin_approve' == call.data[:23])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'replenish_admin_approve' == call.data[:23])
 def callback(call):
     try:
         replenish_id = call.data[23:]
         if dbworker.get_replenish_status(replenish_id) != 1:
-            bot_admin.answer_callback_query(call.id, 'Заявка уже была обработана')
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, '')
+            bot_admin.answer_callback_query(call.id,
+                                            'Заявка уже была обработана')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id, '')
         else:
             replenish_currency = dbworker.get_replenish_currency(replenish_id)
-            replenish_amount_btc = dbworker.get_replenish_amaunt_btc(replenish_id)[0]
-            bot_admin.send_message(call.message.chat.id, f'✅ Вы собираетесь одобрить заявку №{replenish_id} '
-                                                    f'на ввод {round(replenish_amount_btc, 8)} {replenish_currency}',
-                                   reply_markup=buttons.get_replenish_admin_approve_second_keyboard(replenish_id))
+            replenish_amount_btc = \
+            dbworker.get_replenish_amaunt_btc(replenish_id)[0]
+            bot_admin.send_message(call.message.chat.id,
+                                   f'✅ Вы собираетесь одобрить заявку №{replenish_id} '
+                                   f'на ввод {round(replenish_amount_btc, 8)} {replenish_currency}',
+                                   reply_markup=buttons.get_replenish_admin_approve_second_keyboard(
+                                       replenish_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_replenish_admin_approve' == call.data[:30])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_replenish_admin_approve' == call.data[:30])
 def callback(call):
     bot_admin.delete_message(call.from_user.id,
                              call.message.message_id)
@@ -675,11 +792,12 @@ def callback(call):
     for admin in current_admins:
         try:
             admin_t_id = admin[0]
-            bot_admin.send_message(admin_t_id, f'✅ Администратор {call.message.chat.id} подтвердил получение средство '
-                                               f'по Заявке №{replenish_id} на пополнение'
-                                               f' {replenish_value[0]} (+комиссия: {"{:0.8f}".format(comm)})'
-                                               f' {replenish_currency}\n'
-                                               f'Id пользователя: {replenish_user}')
+            bot_admin.send_message(admin_t_id,
+                                   f'✅ Администратор {call.message.chat.id} подтвердил получение средств'
+                                   f'по Заявке №{replenish_id} на пополнение'
+                                   f' {replenish_value[0]} (+комиссия: {"{:0.8f}".format(comm)})'
+                                   f' {replenish_currency}\n'
+                                   f'Id пользователя: {replenish_user}')
         except telebot.apihelper.ApiException as e:
             logging.exception(e)
             continue
@@ -694,16 +812,21 @@ def callback(call):
         dt = dbworker.get_replenish_create_dt(replenish_id)
         balance = dbworker.get_btc_balance(replenish_user)[0]
 
-        transaction_id = dbworker.add_transaction_replenish(replenish_user, dt, f'{replenish_value[0]}',
-                                                            f'{balance_was} BTC', f'{balance} BTC',
-                                                            f'{"{:0.8f}".format(comm)} BTC', 'Пополнено', '')
+        transaction_id = dbworker.add_transaction_replenish(replenish_user, dt,
+                                                            f'{replenish_value[0]}',
+                                                            f'{balance_was} BTC',
+                                                            f'{balance} BTC',
+                                                            f'{"{:0.8f}".format(comm)} BTC',
+                                                            'Пополнено', '')
         transactions[call.message.chat.id] = transaction_id
         to_address = dbworker.get_replenish_wallet_to(replenish_id)
-        dbworker.set_replenish_to_address_transaction(transaction_id, to_address)
+        dbworker.set_replenish_to_address_transaction(transaction_id,
+                                                      to_address)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
     try:
-        dbworker.set_state(call.message.chat.id, config.State.REPLENISH_TXID_ENTER.value)
+        dbworker.set_state(call.message.chat.id,
+                           config.State.REPLENISH_TXID_ENTER.value)
         bot_admin.send_message(call.message.chat.id, '⬇️ ✅ Введите номер Txid')
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
@@ -714,14 +837,16 @@ def callback(call):
         dbworker.set_replenish_rub_balance(replenish_id, replenish_user)
         dbworker.set_replenish_status(replenish_id, '2')
         dbworker.set_replenish_end_dt(replenish_id)
-        bot.send_message(replenish_user, f'Баланс пополнен:\nВаш баланс:\n{user_btc_value[0]} '
-                                         f'Bitcoin\n{user_rub_value[0]} Рублей')
+        bot.send_message(replenish_user,
+                         f'Баланс пополнен:\nВаш баланс:\n{user_btc_value[0]} '
+                         f'Bitcoin\n{user_rub_value[0]} Рублей')
 
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.message_handler(func=lambda m: dbworker.get_state(m.chat.id) == config.State.REPLENISH_TXID_ENTER.value)
+@bot_admin.message_handler(func=lambda m: dbworker.get_state(
+    m.chat.id) == config.State.REPLENISH_TXID_ENTER.value)
 def handle(message):
     try:
         dbworker.set_state(message.chat.id, config.State.ZERO.value)
@@ -736,7 +861,8 @@ def handle(message):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_replenish_admin_back' == call.data[:27])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_replenish_admin_back' == call.data[:27])
 def callback(call):
     try:
         bot_admin.delete_message(call.from_user.id,
@@ -745,15 +871,18 @@ def callback(call):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'replenish_admin_decline' == call.data[:23])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'replenish_admin_decline' == call.data[:23])
 def callback(call):
     try:
         dbworker.set_state(call.message.chat.id, config.State.ZERO.value)
         replenish_id = call.data[23:]
         status = dbworker.get_replenish_status(replenish_id)
         if status != 1:
-            bot_admin.answer_callback_query(call.id, 'Заявка уже была обработана')
-            bot_admin.edit_message_reply_markup(call.message.chat.id, call.message.message_id, '')
+            bot_admin.answer_callback_query(call.id,
+                                            'Заявка уже была обработана')
+            bot_admin.edit_message_reply_markup(call.message.chat.id,
+                                                call.message.message_id, '')
             return
         replenish_currency = dbworker.get_replenish_currency(replenish_id)
         if replenish_currency == 'btc':
@@ -764,25 +893,29 @@ def callback(call):
         bot_admin.send_message(call.message.chat.id,
                                f'❌ Вы собираетесь отказать по заявке №{replenish_id} на пополнение {replenish_value[0]} '
                                f'{replenish_currency}',
-                               reply_markup=buttons.get_replenish_admin_decline_second_keyboard(replenish_id))
+                               reply_markup=buttons.get_replenish_admin_decline_second_keyboard(
+                                   replenish_id))
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: 'second_replenish_admin_decline' == call.data[:30])
+@bot_admin.callback_query_handler(
+    func=lambda call: 'second_replenish_admin_decline' == call.data[:30])
 def callback(call):
     try:
         bot_admin.delete_message(call.message.chat.id, call.message.message_id)
         bot_admin.send_message(call.message.chat.id, 'Укажите причину отказа',
                                reply_markup=buttons.get_replenish_admin_decline_second_reason_keyboard())
 
-        dbworker.set_state(call.message.chat.id, config.State.WAITING_REPLENISH_DECLINE_REASON.value)
+        dbworker.set_state(call.message.chat.id,
+                           config.State.WAITING_REPLENISH_DECLINE_REASON.value)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
 @bot_admin.message_handler(
-    func=lambda m: dbworker.get_state(m.chat.id) == config.State.WAITING_REPLENISH_DECLINE_REASON.value)
+    func=lambda m: dbworker.get_state(
+        m.chat.id) == config.State.WAITING_REPLENISH_DECLINE_REASON.value)
 def handle(message):
     current_admins = dbworker.get_admins()
     try:
@@ -808,33 +941,41 @@ def handle(message):
             balance_was = f'{dbworker.get_replenish_rub_balance_was(replenish_id)} RUB'
             balance = f'{dbworker.get_replenish_rub_balance(replenish_id)} RUB'
             commission = f'{dbworker.get_replenish_commission(replenish_id)} RUB'
-        transaction_id = dbworker.add_transaction_replenish(replenish_user, dt, '0', balance_was, balance, commission, 'Отказ', answer)
+        transaction_id = dbworker.add_transaction_replenish(replenish_user, dt,
+                                                            '0', balance_was,
+                                                            balance, commission,
+                                                            'Отказ', answer)
         to_address = dbworker.get_replenish_wallet_to(replenish_id)
-        dbworker.set_replenish_to_address_transaction(transaction_id, to_address)
+        dbworker.set_replenish_to_address_transaction(transaction_id,
+                                                      to_address)
 
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
     for admin in current_admins:
         try:
             admin_t_id = admin[0]
-            bot_admin.send_message(admin_t_id, f'⬇️❌ Администратор {admin_t_id} отклонил заявку\n'
-                                               f'Заявку №{replenish_id}'
-                                               f' на пополнение {replenish_value[0]} {replenish_currency}\n'
-                                               f'Причина: {answer}')
+            bot_admin.send_message(admin_t_id,
+                                   f'⬇️❌ Администратор {admin_t_id} отклонил заявку\n'
+                                   f'Заявку №{replenish_id}'
+                                   f' на пополнение {replenish_value[0]} {replenish_currency}\n'
+                                   f'Причина: {answer}')
         except telebot.apihelper.ApiException as e:
             logging.exception(e)
             continue
 
     try:
-        bot.send_message(replenish_user, f'Отказ в пополнении. Причина: {answer}')
+        bot.send_message(replenish_user,
+                         f'Отказ в пополнении. Причина: {answer}')
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: call.data[:15] == 'answer_support_')
+@bot_admin.callback_query_handler(
+    func=lambda call: call.data[:15] == 'answer_support_')
 def call(call):
     try:
-        if redis.Redis(connection_pool=config.pool).get(f'support_{call.message.chat.id}').decode('utf-8')[
+        if redis.Redis(connection_pool=config.pool).get(
+                f'support_{call.message.chat.id}').decode('utf-8')[
            :8] == 'support_':
             return
     except:
@@ -857,9 +998,11 @@ def call(call):
 
 
 @bot_admin.message_handler(func=lambda message:
-redis.Redis(connection_pool=config.pool).get(f'support_{message.chat.id}') is not None)
+redis.Redis(connection_pool=config.pool).get(
+    f'support_{message.chat.id}') is not None)
 def handle(message):
-    if redis.Redis(connection_pool=config.pool).get(f'support_{message.chat.id}').decode('utf-8')[:8] != 'support_':
+    if redis.Redis(connection_pool=config.pool).get(
+            f'support_{message.chat.id}').decode('utf-8')[:8] != 'support_':
         return
     try:
         r = redis.Redis(connection_pool=config.pool)
@@ -878,10 +1021,11 @@ def handle(message):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: call.data == 'back_to_support_main' and
-                                                    redis.Redis(connection_pool=config.pool).get(
-                                                        f'support_{call.message.chat.id}').decode('utf-8')[
-                                                    :8] == 'support_')
+@bot_admin.callback_query_handler(
+    func=lambda call: call.data == 'back_to_support_main' and
+                      redis.Redis(connection_pool=config.pool).get(
+                          f'support_{call.message.chat.id}').decode('utf-8')[
+                      :8] == 'support_')
 def call(call):
     try:
         r = redis.Redis(connection_pool=config.pool)
@@ -893,7 +1037,8 @@ def call(call):
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: call.data[:21] == 'confirm_verification_')
+@bot_admin.callback_query_handler(
+    func=lambda call: call.data[:21] == 'confirm_verification_')
 def call(call):
     try:
         user_id = call.data[21:]
@@ -904,19 +1049,25 @@ def call(call):
             bot_admin.delete_message(admin_id, call.message.message_id)
             bot_admin.delete_message(admin_id, call.message.message_id - 1)
             bot_admin.delete_message(admin_id, call.message.message_id - 2)
-        bot_admin.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id - 1)
-        bot_admin.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id - 2)
-        bot_admin.edit_message_text(chat_id=call.message.chat.id, message_id=call.message.message_id,
+        bot_admin.delete_message(chat_id=call.message.chat.id,
+                                 message_id=call.message.message_id - 1)
+        bot_admin.delete_message(chat_id=call.message.chat.id,
+                                 message_id=call.message.message_id - 2)
+        bot_admin.edit_message_text(chat_id=call.message.chat.id,
+                                    message_id=call.message.message_id,
                                     text='Вы уверены что хотите подтвердить верификацию?',
-                                    reply_markup=buttons.get_confirm_verification_keyboard(user_id))
+                                    reply_markup=buttons.get_confirm_verification_keyboard(
+                                        user_id))
 
         dbworker.set_status(user_id, 1)
-        dbworker.set_state(admin_id, config.State.ADMIN_CHECK_VERIFICATION.value)
+        dbworker.set_state(admin_id,
+                           config.State.ADMIN_CHECK_VERIFICATION.value)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: call.data[:20] == 'reject_verification_')
+@bot_admin.callback_query_handler(
+    func=lambda call: call.data[:20] == 'reject_verification_')
 def call(call):
     try:
         user_id = call.data[20:]
@@ -929,17 +1080,21 @@ def call(call):
             bot_admin.delete_message(admin_id, call.message.message_id - 2)
         bot_admin.delete_message(admin_id, call.message.message_id - 1)
         bot_admin.delete_message(admin_id, call.message.message_id - 2)
-        bot_admin.edit_message_text(chat_id=admin_id, message_id=call.message.message_id,
+        bot_admin.edit_message_text(chat_id=admin_id,
+                                    message_id=call.message.message_id,
                                     text='Вы уверены что хотите отклонить верификацию?',
-                                    reply_markup=buttons.get_reject_verification_keyboard(user_id))
+                                    reply_markup=buttons.get_reject_verification_keyboard(
+                                        user_id))
         dbworker.set_status(user_id, 1)
-        dbworker.set_state(admin_id, config.State.ADMIN_CHECK_VERIFICATION.value)
+        dbworker.set_state(admin_id,
+                           config.State.ADMIN_CHECK_VERIFICATION.value)
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
 
 
-@bot_admin.callback_query_handler(func=lambda call: dbworker.get_state(call.message.chat.id) ==
-                                                    config.State.ADMIN_CHECK_VERIFICATION.value)
+@bot_admin.callback_query_handler(
+    func=lambda call: dbworker.get_state(call.message.chat.id) ==
+                      config.State.ADMIN_CHECK_VERIFICATION.value)
 def call(call):
     try:
         if call.data[:28] == 'second_confirm_verification_':
@@ -958,19 +1113,23 @@ def call(call):
             current_admins = dbworker.get_admins()
             for admin in current_admins:
                 try:
-                    bot_admin.delete_message(call.message.chat.id, call.message.message_id)
+                    bot_admin.delete_message(call.message.chat.id,
+                                             call.message.message_id)
                     admin_t_id = admin[0]
                     caption = f'✅ Администратор {call.message.chat.id} отклонил верификацию:\n' + text
                     bot_admin.send_media_group(admin_t_id,
-                                               [telebot.types.InputMediaPhoto(photo1,
-                                                                              caption=caption),
-                                                telebot.types.InputMediaPhoto(photo2)])
+                                               [telebot.types.InputMediaPhoto(
+                                                   photo1,
+                                                   caption=caption),
+                                                telebot.types.InputMediaPhoto(
+                                                    photo2)])
                 except telebot.apihelper.ApiException as e:
                     logging.exception(e)
                     continue
             dbworker.set_status(user_id, 2)
             dbworker.set_state(call.message.chat.id, config.State.ZERO.value)
-            bot.send_message(chat_id=user_id, text='Вам подтвердили верификацию')
+            bot.send_message(chat_id=user_id,
+                             text='Вам подтвердили верификацию')
         elif call.data[:33] == 'second_verification_verification_':
             user_id = call.data[28:]
             photo1 = open(f'verification/{user_id}/photo1.jpg', "rb")
@@ -987,14 +1146,17 @@ def call(call):
             current_admins = dbworker.get_admins()
             for admin in current_admins:
                 try:
-                    bot_admin.delete_message(call.message.chat.id, call.message.message_id)
+                    bot_admin.delete_message(call.message.chat.id,
+                                             call.message.message_id)
                     admin_t_id = admin[0]
                     caption = f'✅ Администратор {call.message.chat.id} отклонил верификацию:\n' + text
 
                     bot_admin.send_media_group(admin_t_id,
-                                               [telebot.types.InputMediaPhoto(photo1,
-                                                                              caption=caption),
-                                                telebot.types.InputMediaPhoto(photo2, )])
+                                               [telebot.types.InputMediaPhoto(
+                                                   photo1,
+                                                   caption=caption),
+                                                telebot.types.InputMediaPhoto(
+                                                    photo2, )])
                 except telebot.apihelper.ApiException as e:
                     logging.exception(e)
                     continue
@@ -1017,10 +1179,14 @@ def call(call):
             bot_admin.send_media_group(call.message.chat.id,
                                        [telebot.types.InputMediaPhoto(photo1,
                                                                       caption='Идентификация и проверка лица'),
-                                        telebot.types.InputMediaPhoto(photo2, caption='Фото с документом')])
+                                        telebot.types.InputMediaPhoto(photo2,
+                                                                      caption='Фото с документом')])
 
-            bot_admin.send_message(call.message.chat.id, text, reply_markup=buttons.get_verification_keyboard(user_id))
-            bot_admin.delete_message(call.message.chat.id, call.message.message_id)
+            bot_admin.send_message(call.message.chat.id, text,
+                                   reply_markup=buttons.get_verification_keyboard(
+                                       user_id))
+            bot_admin.delete_message(call.message.chat.id,
+                                     call.message.message_id)
             dbworker.set_status(user_id, 0)
             dbworker.set_state(call.message.chat.id, config.State.ZERO.value)
     except telebot.apihelper.ApiException as e:
@@ -1031,11 +1197,14 @@ def call(call):
 def call(call):
     r = redis.Redis(connection_pool=config.pool)
     try:
-        if r.get(f'connect_admin_status_{call.message.chat.id}')[:8] == b'connect_':
-            bot_admin.answer_callback_query(call.id, 'Вы уже подключены к другому чату')
+        if r.get(f'connect_admin_status_{call.message.chat.id}')[
+           :8] == b'connect_':
+            bot_admin.answer_callback_query(call.id,
+                                            'Вы уже подключены к другому чату')
             return
     except:
-        bot_admin.answer_callback_query(call.id, 'Вы уже подключены к другому чату')
+        bot_admin.answer_callback_query(call.id,
+                                        'Вы уже подключены к другому чату')
         return
     connect_id = call.data[8:]
     status = dbworker.get_connect_status(connect_id)
@@ -1046,21 +1215,25 @@ def call(call):
 
     admin_id = call.message.chat.id
     dbworker.set_admin_id_connections(admin_id, connect_id)
-    dbworker.set_state(call.message.chat.id, config.State.CHAT_WITH_SUPPORT.value)
+    dbworker.set_state(call.message.chat.id,
+                       config.State.CHAT_WITH_SUPPORT.value)
     bot_support_username = bot_support.get_me().username
-    bot_admin.edit_message_text(f'Вы подключены - перейдите к @{bot_support_username}\n'
-                                f'ID подключения: {connect_id}\n'
-                                f'ID юзера: {dbworker.get_connect_t_id(connect_id)}',
-                                call.message.chat.id, call.message.message_id,
-                                reply_markup=buttons.get_disconnect_operator_keyboard(connect_id))
+    bot_admin.edit_message_text(
+        f'Вы подключены - перейдите к @{bot_support_username}\n'
+        f'ID подключения: {connect_id}\n'
+        f'ID юзера: {dbworker.get_connect_t_id(connect_id)}',
+        call.message.chat.id, call.message.message_id,
+        reply_markup=buttons.get_disconnect_operator_keyboard(connect_id))
     t_id = dbworker.get_connect_t_id(connect_id)
     r = redis.Redis(connection_pool=config.pool)
-    r.set(f'connect_admin_status_{call.message.chat.id}', f'connect_{connect_id}')
+    r.set(f'connect_admin_status_{call.message.chat.id}',
+          f'connect_{connect_id}')
     r.set(f'connect_user_status_{t_id}', f'connect_{connect_id}')
     bot_support.send_message(t_id, 'Оператор подключился')
 
 
-@bot_admin.callback_query_handler(func=lambda call: call.data[:11] == 'disconnect_')
+@bot_admin.callback_query_handler(
+    func=lambda call: call.data[:11] == 'disconnect_')
 def call(call):
     connect_id = call.data[11:]
     dbworker.set_admin_id_disconnections(connect_id)
@@ -1071,9 +1244,6 @@ def call(call):
     bot_support.send_message(t_id, 'Оператор отключился')
     bot_admin.edit_message_text(f'Вы отключены',
                                 call.message.chat.id, call.message.message_id)
-
-
-
 
 
 #  Polling

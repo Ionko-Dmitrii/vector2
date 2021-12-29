@@ -186,7 +186,7 @@ def handle_delete(message):
 @bot.message_handler(commands=['start'])
 def handle_start(message):
 
-
+    print("telegram>>>>>>", message)
     #logging_message(message)
     try:
         dbworker.set_state(message.chat.id, config.State.START.value)
@@ -209,7 +209,8 @@ def handle_start(message):
         dbworker.set_state(message.chat.id, config.State.MAIN_MENU.value)
         bot.send_message(message.chat.id, "Добро пожаловать.\n"
                                           "Инфо о нас\n"
-                                          "Воспользуйтесь кнопками ниже:")
+                                          "Воспользуйтесь кнопками ниже:",
+                                           reply_markup=buttons.get_main_menu_keyboard())
 
     except telebot.apihelper.ApiException as e:
         logging.exception(e)

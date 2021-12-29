@@ -11,13 +11,15 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 import sys
+import environ
+
+from pathlib import Path
 
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
 
-
-from pathlib import Path
+env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,12 +29,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-jkyl1n20n#!p@e=gz(_mynj4d-^as@4hd*z5k%)5f-qc&pyd2='
+SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DJANGO_DEBUG')
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = env.str('DJANGO_ALLOWED_HOSTS')
 
 
 # Application definition
@@ -88,14 +90,7 @@ WSGI_APPLICATION = 'adminpage.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'changer',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
-    }
+    'default': env.db('DATABASE_URL')
 }
 
 
@@ -137,11 +132,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-EMAIL_HOST_USER = 'dmitriy@sunrisestudio.pro'
-EMAIL_HOST_PASSWORD = 'iphone12pro'
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.yandex.ru'
-EMAIL_PORT = 587
+EMAIL_USE_TLS = env.str('EMAIL_USE_TLS')
+EMAIL_HOST = env.str('EMAIL_HOST')
+EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = env.str('EMAIL_PORT')  # or other port
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Static files (CSS, JavaScript, Images)

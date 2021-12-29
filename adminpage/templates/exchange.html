@@ -77,18 +77,20 @@
                     </thead>
                     <tbody class="table-history">
                     {% for history in user_exchange %}
-                        <tr>
-                            <td>{{ history.create_dt|date:"d.m.Y H:i" }}</td>
-                            {% if history.type == 0 %}
-                                <td>{{ history.rub_value }} ₽</td>
-                                <td>{{ history.btc_value }} ₿</td>
-                            {% else %}
-                                <td>{{ history.btc_value }} ₿</td>
-                                <td>{{ history.rub_value }} ₽</td>
-                            {% endif %}
-                            <td>{{ history.commission }} ₽</td>
-                            <td>{{ history.currency_usd }} ₽</td>
-                        </tr>
+                        {% if history.status == 2 %}
+                            <tr>
+                                <td>{{ history.create_dt|date:"d.m.Y H:i" }}</td>
+                                {% if history.type == 1 %}
+                                    <td>{{ history.rub_value }} ₽</td>
+                                    <td>{{ history.btc_value }} ₿</td>
+                                {% else %}
+                                    <td>{{ history.btc_value }} ₿</td>
+                                    <td>{{ history.rub_value }} ₽</td>
+                                {% endif %}
+                                <td>{{ history.commission }} ₽</td>
+                                <td>{{ history.currency_usd }} ₽</td>
+                            </tr>
+                        {% endif %}
                     {% endfor %}
                     </tbody>
                 </table>
@@ -297,29 +299,6 @@
                         })
                         document.querySelector('.js-finishModal').style.display = 'block'
                         document.querySelector('.submitModal').style.display = 'none'
-                        if (result.history.type === 0) {
-                            document.querySelector('.table-history').insertAdjacentHTML(
-                                    "afterBegin",
-                                    `<tr>
-                            <td>${result.history.date}</td>
-                            <td>${result.history.rub_val} ₽</td>
-                            <td>${result.history.btc_val} ₿</td>
-                            <td>${result.history.commission} ₽</td>
-                            <td>${result.history.currency_usd} ₽</td>
-                        <tr>`
-                            )
-                        } else {
-                            document.querySelector('.table-history').insertAdjacentHTML(
-                                    "afterBegin",
-                                    `<tr>
-                            <td>${result.history.date}</td>
-                            <td>${result.history.btc_val} ₿</td>
-                            <td>${result.history.rub_val} ₽</td>
-                            <td>${result.history.commission} ₽</td>
-                            <td>${result.history.currency_usd} ₽</td>
-                        <tr>`
-                            )
-                        }
                     } else {
                        alert('Произошла какая та ошибка!!!')
                     }
