@@ -1,13 +1,12 @@
-from enum import Enum
 import redis
+import environ
 
+from enum import Enum
+env = environ.Env()
 
-# token = '1799106051:AAHER6itgZ_472VgPHLf4PKmtYCBLa5vF2g'
-token = '5094850730:AAFK7VBqxBdsm1QAqgZt9ooSDjIwRko7m3w'
-# token_admin = '1758655220:AAH9lVFBkTdf-qQ038hz40P_GBqPlIQrKwc'
-token_admin = '5053612158:AAEN6F1RYrY6vJvLrCX3aNIxd_XMREj01sA'
-# token_support = '1860401579:AAGI74UjIgOkA-ZGNKIovlKAPCL7B63dgsg'
-token_support = '5053612158:AAEN6F1RYrY6vJvLrCX3aNIxd_XMREj01sA'
+token = env.str('BOT_MAIN')
+token_admin = env.str('BOT_ADMIN')
+token_support = env.str('BOT_SUPPORT')
 
 host_ip = '127.0.0.1'
 host_port = 8000  # 443, 80, 88, 8443

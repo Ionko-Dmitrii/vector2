@@ -460,7 +460,7 @@ def handle(message):
                     </html>
                 """
         send_email_notification(
-            dbworker.get_email(message.from_user.id), heading, html
+            dbworker.get_email(exchange_user), heading, html
         )
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
@@ -623,8 +623,7 @@ def callback(call):
 @bot_admin.callback_query_handler(
     func=lambda call: 'second_exchange_admin_approve' == call.data[:29])
 def callback(call):
-    bot_admin.delete_message(call.from_user.id,
-                             call.message.message_id)
+    bot_admin.delete_message(call.from_user.id, call.message.message_id)
     current_admins = []
     exchange_id = 0
     exchange_user = 0
@@ -634,11 +633,10 @@ def callback(call):
 
         exchange_id = call.data[29:]
         if dbworker.get_exchange_status(exchange_id) != 1:
-            bot_admin.edit_message_reply_markup(call.message.chat.id,
-                                                call.message.message_id,
-                                                reply_markup='')
-            bot_admin.answer_callback_query(call.id,
-                                            'Заявка уже была обработана')
+            bot_admin.edit_message_reply_markup(
+                call.message.chat.id, call.message.message_id, reply_markup=''
+            )
+            bot_admin.answer_callback_query(call.id, 'Заявка уже была обработана')
         else:
             exchange_user = dbworker.get_exchange_user(exchange_id)
             exchange_type = dbworker.get_exchange_type(exchange_id)
@@ -654,10 +652,8 @@ def callback(call):
                     exchange_id)
                 exchange_price = exchange_amount_rub = dbworker.get_exchange_amaunt_rub(
                     exchange_id)
-                dbworker.user_btc_plus(call.message.chat.id,
-                                       exchange_amount_btc)
-                dbworker.user_rub_minus(call.message.chat.id,
-                                        exchange_amount_rub)
+                dbworker.user_btc_plus(call.message.chat.id, exchange_amount_btc)
+                dbworker.user_rub_minus(call.message.chat.id, exchange_amount_rub)
             else:
                 exchange_currency = 'rub'
                 exchange_price_currency = 'btc'
@@ -665,10 +661,8 @@ def callback(call):
                     exchange_id)
                 exchange_value = exchange_amount_rub = dbworker.get_exchange_amaunt_rub(
                     exchange_id)
-                dbworker.user_btc_minus(call.message.chat.id,
-                                        exchange_amount_btc)
-                dbworker.user_rub_plus(call.message.chat.id,
-                                       exchange_amount_rub)
+                dbworker.user_btc_minus(call.message.chat.id, exchange_amount_btc)
+                dbworker.user_rub_plus(call.message.chat.id, exchange_amount_rub)
 
             current_admins = dbworker.get_admins()
     except telebot.apihelper.ApiException as e:
@@ -714,15 +708,14 @@ def callback(call):
     try:
         user_rub_value = dbworker.get_rub_balance(exchange_user)
         user_btc_value = dbworker.get_btc_balance(exchange_user)
-
         dbworker.set_exchange_status(exchange_id, '2')
         dbworker.set_exchange_end_dt(exchange_id)
         dbworker.set_exchange_admin_id(exchange_id, admin_t_id)
 
-        bot.send_message(exchange_user, f'Средства отправлены:\n'
-                                        f'Ваш баланс:\n'
-                                        f'{user_btc_value[0]:.8f} Bitcoin\n'
-                                        f'{user_rub_value[0]} Рублей')
+        # bot.send_message(exchange_user, f'Средства отправлены:\n'
+        #                                 f'Ваш баланс:\n'
+        #                                 f'{user_btc_value[0]:.8f} Bitcoin\n'
+        #                                 f'{user_rub_value[0]} Рублей')
 
         heading = 'Уведомление о обмене валюты!'
         html = f"""
@@ -738,7 +731,7 @@ def callback(call):
             </html>
         """
         send_email_notification(
-            dbworker.get_email(call.from_user.id), heading, html
+            dbworker.get_email(exchange_user), heading, html
         )
     except telebot.apihelper.ApiException as e:
         logging.exception(e)
@@ -770,8 +763,7 @@ def callback(call):
 @bot_admin.callback_query_handler(
     func=lambda call: 'second_replenish_admin_approve' == call.data[:30])
 def callback(call):
-    bot_admin.delete_message(call.from_user.id,
-                             call.message.message_id)
+    bot_admin.delete_message(call.from_user.id, call.message.message_id)
 
     try:
         replenish_id = call.data[30:]

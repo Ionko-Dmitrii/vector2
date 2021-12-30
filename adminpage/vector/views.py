@@ -3,9 +3,8 @@ import json
 
 from decimal import Decimal
 
-import telebot
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db import transaction
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
@@ -14,8 +13,6 @@ from vector.models import users, commission, exchange, admins
 from vector.service import (
     get_latest_currency_price, get_latest_crypto_price_usd
 )
-
-bot_admin = telebot.TeleBot('5053612158:AAEN6F1RYrY6vJvLrCX3aNIxd_XMREj01sA')
 
 
 class IndexPageView(TemplateView):
@@ -77,20 +74,21 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
             btc_val = 0
             rub_val = 0
             type_exchange = 0
-            user = users.objects.get(email=request.user.email)
+            profile = users.objects.get(email=request.user.email)
+            print('profile>>>>>>>', profile)
             create_dt = datetime.datetime.now()
             if data.get('from_currency') == '₽':
                 type_exchange = 1
                 btc_val = value_with_commission
                 rub_val = current_val
-                user_rub = user.rub_value - rub_val
-                user_btc = user.btc_value + btc_val
+                user_rub = profile.rub_value - rub_val
+                user_btc = profile.btc_value + btc_val
             elif data.get('from_currency') == '₿':
                 type_exchange = 0
                 btc_val = current_val
                 rub_val = value_with_commission
-                user_btc = user.btc_value - btc_val
-                user_rub = user.rub_value + rub_val
+                user_btc = profile.btc_value - btc_val
+                user_rub = profile.rub_value + rub_val
             try:
                 obj = exchange(
                     user=request.user,
@@ -101,13 +99,13 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
                     currency_usd=one_dollar,
                     currency_btc=round((one_dollar * one_cripto), ndigits=2),
                     end_dt=datetime.datetime.now(),
-                    balance_btc_was=user.btc_value,
-                    balance_rub_was=user.rub_value,
+                    balance_btc_was=profile.btc_value,
+                    balance_rub_was=profile.rub_value,
                     balance_btc=user_btc,
                     balance_rub=user_rub,
                     type=type_exchange,
                     status=1,
-                    t_id=user.t_id,
+                    t_id=profile.t_id,
                 )
 
                 obj.save()
@@ -116,18 +114,18 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
                 for admin in admin_list:
                     admin_t_id = admin.t_id
                     if type_exchange == 1:
-                        bot_admin.send_message(
+                        settings.BOT_ADMIN.send_message(
                             admin_t_id,
                             f'🔁 Заявка №{obj.id}\n на продажу {rub_val} rub '
-                            f'за {btc_val} btc\nID: {user.t_id} '
-                            f'username: @{user.username}\n Данные пользователя:\n{user.fio}\n{user.email}',
+                            f'за {btc_val} btc\nID: {profile.t_id} '
+                            f'username: @{profile.username}\n Данные пользователя:\n{profile.fio}\n{profile.email}',
                             reply_markup=buttons.get_exchange_admin_approve_keyboard(obj.id))
                     elif type_exchange == 0:
-                        bot_admin.send_message(
+                        settings.BOT_ADMIN.send_message(
                             admin_t_id,
                             f'🔁 Заявка №{obj.id}\n на продажу {btc_val} btc '
-                            f'за {rub_val} rub\nID: {user.t_id} '
-                            f'username: @{user.username}\nДанные пользователя:\n{user.fio}\n{user.email}',
+                            f'за {rub_val} rub\nID: {profile.t_id} '
+                            f'username: @{profile.username}\nДанные пользователя:\n{profile.fio}\n{profile.email}',
                             reply_markup=buttons.get_exchange_admin_approve_keyboard(
                                 obj.id))
 

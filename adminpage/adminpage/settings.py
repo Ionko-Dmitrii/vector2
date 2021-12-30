@@ -15,6 +15,8 @@ import environ
 
 from pathlib import Path
 
+import telebot
+
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
 sys.path.append(os.path.normpath(os.path.join(SCRIPT_DIR, PACKAGE_PARENT)))
@@ -138,6 +140,10 @@ EMAIL_HOST_USER = env.str('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = env.str('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = env.str('EMAIL_PORT')  # or other port
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+BOT_ADMIN = telebot.TeleBot(env.str('BOT_ADMIN'))
+BOT_MAIN = telebot.TeleBot(env.str('BOT_MAIN'))
+BOT_SUPPORT = telebot.TeleBot(env.str('BOT_SUPPORT'))
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

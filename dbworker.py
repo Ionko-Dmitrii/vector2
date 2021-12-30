@@ -365,10 +365,19 @@ def get_rub_balance(t_id):
     cursor = connect.cursor()
     cursor.execute("SELECT rub_value FROM users WHERE t_id=" + str(t_id) + "")
     result = cursor.fetchone()
-    if not result:
-        return 0
+    if result is None:
+        cursor.execute(
+            "SELECT rub_value FROM users WHERE user_id=" + str(t_id) + "")
+        result = cursor.fetchone()
+        connect.commit()
+        connect.close()
+        if result is None:
+            return 0
+
+        return result
     connect.commit()
     connect.close()
+
     return result
 
 def get_count_referals(t_id):
@@ -394,10 +403,20 @@ def get_btc_balance(t_id):
     cursor = connect.cursor()
     cursor.execute("SELECT btc_value FROM users WHERE t_id=" + str(t_id) + "")
     result = cursor.fetchone()
+    if result is None:
+        cursor.execute(
+            "SELECT btc_value FROM users WHERE user_id=" + str(t_id) + "")
+        result = cursor.fetchone()
+        connect.commit()
+        connect.close()
+        if result is None:
+            return 0
+
+        return result
+
     connect.commit()
     connect.close()
-    if not result:
-        return 0
+
     return result
 
 
@@ -971,10 +990,19 @@ def get_email(t_id):
     cursor = connect.cursor()
     cursor.execute(f"SELECT email FROM users WHERE t_id= {t_id}")
     result = cursor.fetchone()
+    if result is None:
+        cursor.execute(f"SELECT email FROM users WHERE user_id= {t_id}")
+        result = cursor.fetchone()
+        connect.commit()
+        connect.close()
+        if result is None:
+            return 0
+
+        return result[0]
+
     connect.commit()
     connect.close()
-    if not result:
-        return 0
+
     return result[0]
 
 
@@ -1031,10 +1059,21 @@ def get_exchange_user(exchange_id):
     cursor = connect.cursor()
     cursor.execute("SELECT t_id FROM exchange WHERE id=" + str(exchange_id) + "")
     result = cursor.fetchone()
+
+    if result[0] is None:
+        cursor.execute("SELECT user_id FROM exchange JOIN account_user ON exchange.user_id = account_user.id WHERE exchange.id=" + str(exchange_id) + "")
+        result_web = cursor.fetchone()
+        connect.commit()
+        connect.close()
+
+        if result_web[0] is None:
+            return 0
+
+        return result_web[0]
+
     connect.commit()
     connect.close()
-    if not result:
-        return 0
+
     return result[0]
 
 
