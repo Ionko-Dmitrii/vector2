@@ -1,11 +1,13 @@
-import datetime
-
 import psycopg2
-from psycopg2.extras import NamedTupleCursor
-# import telebot
 import redis
 
-import config
+from psycopg2.extras import NamedTupleCursor
+
+try:
+    from telegram_bot import config
+except ImportError:
+    import config
+
 
 def get_admins_type(type):
     connect = psycopg2.connect(

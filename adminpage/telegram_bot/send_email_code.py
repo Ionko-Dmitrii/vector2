@@ -1,4 +1,3 @@
-import mimetypes
 import smtplib
 
 from email.mime.multipart import MIMEMultipart

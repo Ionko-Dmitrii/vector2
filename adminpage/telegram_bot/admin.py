@@ -1,24 +1,17 @@
-# coding=utf-8
 import datetime
 import logging
-import os
 
-import cherrypy
 import redis
 import telebot
-from django.conf import settings
 
-import buttons
-import config
-import dbworker
-from django.core.mail import send_mail
-
-from decimal import *
-from decimal import Decimal
-
-# from memory_profiler import profile
-from send_email_code import send_email_code
 from send_email_notification import send_email_notification
+
+try:
+    from telegram_bot import buttons, config, dbworker
+except ImportError:
+    import buttons
+    import config
+    import dbworker
 
 WEBHOOK_HOST = config.host_ip
 WEBHOOK_PORT = config.host_port_admin

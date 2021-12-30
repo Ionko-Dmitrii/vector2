@@ -2,24 +2,22 @@
 import datetime
 import logging
 import os
-import re
-import urllib
-
-import cherrypy
 import telebot
-
-import buttons
-import config
-import dbworker
-from decimal import *
-from decimal import Decimal
-
 import random
 import string
 import requests
 
+try:
+    from telegram_bot import buttons, config, dbworker
+except ImportError:
+    import buttons
+    import config
+    import dbworker
+    import send_email_code
+
+from decimal import *
+from decimal import Decimal
 from validate_email import validate_email
-from send_email_code import send_email_code
 
 # import statesworker
 

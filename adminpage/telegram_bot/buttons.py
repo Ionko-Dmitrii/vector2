@@ -1,7 +1,12 @@
 # coding=utf-8
 import telebot
-import dbworker
+
 from telebot import types
+
+try:
+    from telegram_bot import dbworker
+except ImportError:
+    import dbworker
 
 
 def get_remove_keyboard():

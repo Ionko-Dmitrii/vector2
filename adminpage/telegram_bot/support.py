@@ -1,18 +1,10 @@
-# coding=utf-8
-import datetime
 import logging
-
-import cherrypy
 import redis
 import telebot
 
-import buttons
-import config
-import dbworker
-from decimal import *
-from decimal import Decimal
-
-# from memory_profiler import profile
+from telegram_bot import buttons
+from telegram_bot import config
+from telegram_bot import dbworker
 
 WEBHOOK_HOST = config.host_ip
 WEBHOOK_PORT = config.host_port_admin

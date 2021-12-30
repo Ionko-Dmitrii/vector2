@@ -8,7 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 
-import buttons
+from telegram_bot.buttons import get_exchange_admin_approve_keyboard
 from vector.models import users, commission, exchange, admins
 from vector.service import (
     get_latest_currency_price, get_latest_crypto_price_usd
@@ -119,14 +119,14 @@ class ExchangeView(LoginRequiredMixin, TemplateView):
                             f'🔁 Заявка №{obj.id}\n на продажу {rub_val} rub '
                             f'за {btc_val} btc\nID: {profile.t_id} '
                             f'username: @{profile.username}\n Данные пользователя:\n{profile.fio}\n{profile.email}',
-                            reply_markup=buttons.get_exchange_admin_approve_keyboard(obj.id))
+                            reply_markup=get_exchange_admin_approve_keyboard(obj.id))
                     elif type_exchange == 0:
                         settings.BOT_ADMIN.send_message(
                             admin_t_id,
                             f'🔁 Заявка №{obj.id}\n на продажу {btc_val} btc '
                             f'за {rub_val} rub\nID: {profile.t_id} '
                             f'username: @{profile.username}\nДанные пользователя:\n{profile.fio}\n{profile.email}',
-                            reply_markup=buttons.get_exchange_admin_approve_keyboard(
+                            reply_markup=get_exchange_admin_approve_keyboard(
                                 obj.id))
 
                 return JsonResponse(dict(
