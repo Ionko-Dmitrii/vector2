@@ -12,10 +12,9 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 import sys
 import environ
+import telebot
 
 from pathlib import Path
-
-import telebot
 
 PACKAGE_PARENT = '..'
 SCRIPT_DIR = os.path.dirname(os.path.realpath(os.path.join(os.getcwd(), os.path.expanduser(__file__))))
@@ -25,7 +24,7 @@ env = environ.Env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+env.read_env(f"{Path(__file__).resolve().parent.parent.parent}/.envs/.env")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
