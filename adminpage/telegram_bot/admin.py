@@ -1,8 +1,14 @@
+from pathlib import Path
+
+import environ
 import datetime
 import logging
-
 import redis
 import telebot
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+env.read_env(f"{BASE_DIR}/.envs/.env")
 
 from send_email_notification import send_email_notification
 
@@ -69,6 +75,7 @@ def handle_delete(message):
 # @profile
 @bot_admin.message_handler(commands=['start'])
 def handle_start(message):
+    print(message)
     try:
         bot_admin.send_message(message.chat.id, 'Главное меню')
     except telebot.apihelper.ApiException as e:

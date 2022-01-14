@@ -1,5 +1,12 @@
 # coding=utf-8
+from pathlib import Path
+
+import environ
 import telebot
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+env.read_env(f"{BASE_DIR}/.envs/.env")
 
 from telebot import types
 

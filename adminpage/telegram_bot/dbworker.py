@@ -1,5 +1,12 @@
+from pathlib import Path
+
+import environ
 import psycopg2
 import redis
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+env.read_env(f"{BASE_DIR}/.envs/.env")
 
 from psycopg2.extras import NamedTupleCursor
 

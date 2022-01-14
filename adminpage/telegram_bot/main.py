@@ -1,4 +1,7 @@
-# coding=utf-8
+from pathlib import Path
+
+import environ
+import sys
 import datetime
 import logging
 import os
@@ -6,6 +9,11 @@ import telebot
 import random
 import string
 import requests
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+env.read_env(f"{BASE_DIR}/.envs/.env")
+sys.path.append(str(BASE_DIR))
 
 try:
     from telegram_bot import buttons, config, dbworker

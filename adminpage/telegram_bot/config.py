@@ -1,8 +1,13 @@
-import redis
+from pathlib import Path
+
 import environ
+import redis
+
+env = environ.Env()
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+env.read_env(f"{BASE_DIR}/.envs/.env")
 
 from enum import Enum
-env = environ.Env()
 
 token = env.str('BOT_MAIN')
 token_admin = env.str('BOT_ADMIN')
